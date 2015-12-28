@@ -1,0 +1,17 @@
+Package: airtabler
+Type: Package
+Title: Interface to the Airtable API
+Version: 0.1.0
+Date: 2015-12-26
+Author: Darko Bergant
+Maintainer: Darko Bergant <darko.bergant@gmail.com>
+Description: Provides access to the Airtable (airtable.com) API.
+Depends:
+    R (>= 3.2.0)
+License: MIT + file LICENSE
+URL: https://github.com/bergant/airtabler
+LazyData: TRUE
+Imports:
+    httr,
+    jsonlite
+RoxygenNote: 5.0.1

@@ -1,0 +1,107 @@
+---
+title: "airtabler"
+output: 
+  html_document: 
+    keep_md: yes
+---
+Provides access to the [Airtable API](http://airtable.com/api)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install
+
+```{r install, eval=FALSE}
+devtools::install_github("bergant/airtabler")
+```
+
+## Setup
+> After you've created and configured the schema of an Airtable base from the
+graphical interface, your Airtable base will provide its own API to create,
+read, update, and destroy records. -  [airtable.com/api](http://airtable.com/api) 
+
+## Get and store the API key
+Generate the airtable API key from your [Airtable account](http://airtable.com/account) page.
+
+__airtabler__ functions will read the API key from
+  environment variable `AIRTABLE_API_KEY`. To start R session with the
+  initialized environvent variable create an `.Renviron` file in your R home
+  with a line like this:
+  
+`AIRTABLE_API_KEY=your_api_key_here`
+
+To check where your R home is, type `normalizePath("~")` in your R console.
+
+## Usage
+
+_Note that you should replace the Airtable base identifiers and `record_id`s when running the examples._
+
+### Get table records
+```{r get_records}
+library(airtabler)
+# define airtable base (see airtable.com/api for correct base IDs)
+travel_base <- "appIS8u9n73hzwE7R"
+# get data
+hotels <- 
+  air_get(travel_base, table_name = "Hotels")
+
+knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")])
+
+```
+
+Optional arguments to `air_get`:
+
+* __view__ The name or ID of the view, defined on the table.
+* __limit__ A limit on the number of records to be returned.
+  Limit can range between 1 and 100.
+* __offset__ Page offset returned by the previous list-records
+  call. Note that this is represented by a record ID, not a numerical offset.
+* __sortField__ The field name to use for sorting
+* __sortDirection__ "asc" or "desc". The sort order in which the
+  records will be returned. Defaults to asc.
+
+### Retrieve a record
+Add the `record_id` argument to get the details of a record:
+
+```{r get_single}
+radisson <- 
+  air_get(travel_base, "Hotels", record_id = "recgKO7K15YyWEsdb")
+
+str(radisson$fields, max.level = 1)
+```
+
+### Insert a record
+Insert a new record with `air_insert` (API returns all record data - including new record ID):
+```{r insert}
+new_hotel <- 
+  air_insert(travel_base, "Hotels", record_data = list(
+    Name = "New hotel",
+    `Price/night` = 200,
+    Stars = "****",
+    Amenities = c("Hiking", "Gym"),
+    Notes = "Just a sample record.\nWith extra line in notes."
+  ))
+
+cat("Inserted a record with ID=", new_hotel$id, sep = "")
+```
+
+
+### Update a record
+Update the price of the new hotel (API returns all record data):
+```{r update}
+new_hotel <- 
+  air_update(travel_base, "Hotels", new_hotel$id, record_data = list(
+    `Price/night` = 180
+  ))
+
+cat("Updated a record with ID=", new_hotel$id, ". ", 
+    "New price: ", new_hotel$fields$`Price/night`, sep = "")
+```
+
+### Delete a record
+```{r delete}
+air_delete(travel_base, "Hotels", record_id = new_hotel$id)
+```
+
+
