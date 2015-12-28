@@ -46,7 +46,7 @@ travel_base <- "appIS8u9n73hzwE7R"
 hotels <- 
   air_get(travel_base, table_name = "Hotels")
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdown")
 
 ```
 

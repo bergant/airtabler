@@ -41,20 +41,20 @@ travel_base <- "appIS8u9n73hzwE7R"
 hotels <- 
   air_get(travel_base, table_name = "Hotels")
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdown")
 ```
 
 
 
-id                  Name                                                           Stars    Price/night
-------------------  -------------------------------------------------------------  ------  ------------
-reccPOcMQaYt1tthb   Heritage Christchurch Hotel (Christchurch, New Zealand)        ****             176
-receHGZJ22WyUxocl   Urikana Boutique Hotel (Teresopolis, Brazil)                   *****            146
-recgKO7K15YyWEsdb   Radisson Blu Hotel Marseille Vieux Port (Marseilles, France)   ****             170
-recjJJ4TX38sUwzfj   Hotel Berg (Keflavík, Iceland)                                 ***              136
-recjUU2GT28yVvw7l   Sheraton Nha Trang (Nha Trang, Vietnam)                        *****            136
-reckPH6G384y3suac   Grand Residences Riviera Cancun (Puerto Morelos, Mexico)       *****            278
-reclG7Bd2g5Dtiw4J   Grand Budapest Hotel (Zubrowka)                                *****            156
+|id                |Name                                                         |Stars | Price/night|
+|:-----------------|:------------------------------------------------------------|:-----|-----------:|
+|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)      |****  |         176|
+|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)                 |***** |         146|
+|recgKO7K15YyWEsdb |Radisson Blu Hotel Marseille Vieux Port (Marseilles, France) |****  |         170|
+|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                               |***   |         136|
+|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                      |***** |         136|
+|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |         278|
+|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |         156|
 
 Optional arguments to `air_get`:
 
@@ -108,7 +108,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=recBQ838eVEv9pyCu
+## Inserted a record with ID=recIqq8DgpRBmgf0v
 ```
 
 
@@ -126,7 +126,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=recBQ838eVEv9pyCu. New price: 180
+## Updated a record with ID=recIqq8DgpRBmgf0v. New price: 180
 ```
 
 ### Delete a record
@@ -140,7 +140,7 @@ air_delete(travel_base, "Hotels", record_id = new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "recBQ838eVEv9pyCu"
+## [1] "recIqq8DgpRBmgf0v"
 ```
 
 
