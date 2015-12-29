@@ -29,17 +29,29 @@ To check where your R home is, type `normalizePath("~")` in your R console.
 
 ## Usage
 
-_Note that you should replace the Airtable base identifiers and `record_id`s when running the examples._
+Create airtable base object:
 
-### Get table records
 
 ```r
 library(airtabler)
-# define airtable base (see airtable.com/api for correct base IDs)
-travel_base <- "appIS8u9n73hzwE7R"
+
+TravelBucketList <- 
+  air_base(
+    base = "appIS8u9n73hzwE7R", 
+    tables = c("Destinations", "Hotels", "Travel Partners")
+  )
+```
+
+_Note that you should replace the Airtable base identifiers and `record_id`s when running the examples._
+
+### Get all records
+
+```r
+library(airtabler)
+
 # get data
 hotels <- 
-  air_get(travel_base, table_name = "Hotels")
+  TravelBucketList$Hotels$get()
 
 knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdown")
 ```
@@ -56,7 +68,7 @@ knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdow
 |reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |         278|
 |reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |         156|
 
-Optional arguments to `air_get`:
+Optional arguments to `get` function:
 
 * __view__ The name or ID of the view, defined on the table.
 * __limit__ A limit on the number of records to be returned.
@@ -73,7 +85,7 @@ Add the `record_id` argument to get the details of a record:
 
 ```r
 radisson <- 
-  air_get(travel_base, "Hotels", record_id = "recgKO7K15YyWEsdb")
+  TravelBucketList$Hotels$get(record_id = "recgKO7K15YyWEsdb")
 
 str(radisson$fields, max.level = 1)
 ```
@@ -92,23 +104,25 @@ str(radisson$fields, max.level = 1)
 ```
 
 ### Insert a record
-Insert a new record with `air_insert` (API returns all record data - including new record ID):
+Insert a new record with `insert` function (API returns all record data - including new record ID):
 
 ```r
+record_data <- list(
+  Name = "New hotel",
+  `Price/night` = 200,
+  Stars = "****",
+  Amenities = c("Hiking", "Gym"),
+  Notes = "Just a sample record.\nWith extra line in notes."
+)
+
 new_hotel <- 
-  air_insert(travel_base, "Hotels", record_data = list(
-    Name = "New hotel",
-    `Price/night` = 200,
-    Stars = "****",
-    Amenities = c("Hiking", "Gym"),
-    Notes = "Just a sample record.\nWith extra line in notes."
-  ))
+  TravelBucketList$Hotels$insert(record_data)
 
 cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=recIqq8DgpRBmgf0v
+## Inserted a record with ID=reccaUZKE5pxl1TA5
 ```
 
 
@@ -117,22 +131,26 @@ Update the price of the new hotel (API returns all record data):
 
 ```r
 new_hotel <- 
-  air_update(travel_base, "Hotels", new_hotel$id, record_data = list(
-    `Price/night` = 180
-  ))
+  TravelBucketList$Hotels$update(
+    record_id = new_hotel$id, 
+    record_data = list(
+      `Price/night` = 120,
+      Notes = "Check out the price!!!"
+    )
+  )
 
 cat("Updated a record with ID=", new_hotel$id, ". ", 
     "New price: ", new_hotel$fields$`Price/night`, sep = "")
 ```
 
 ```
-## Updated a record with ID=recIqq8DgpRBmgf0v. New price: 180
+## Updated a record with ID=reccaUZKE5pxl1TA5. New price: 120
 ```
 
 ### Delete a record
 
 ```r
-air_delete(travel_base, "Hotels", record_id = new_hotel$id)
+TravelBucketList$Hotels$delete(new_hotel$id)
 ```
 
 ```
@@ -140,7 +158,78 @@ air_delete(travel_base, "Hotels", record_id = new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "recIqq8DgpRBmgf0v"
+## [1] "reccaUZKE5pxl1TA5"
+```
+
+
+## Working with data frames
+
+Standard Airtable API does not accept a table of records. 
+Functions `insert` and `update` accept a data.frame and
+execute transactions (call Airtable API) row by row.
+
+Insert records with a data frame:
+
+```r
+two_records <- 
+  data.frame(
+    Name = c("Sample1", "Sample2"),
+    `Price/night` = c(150, 180),
+    Stars = c("***", "****"),
+    Amenities = I(list(c("Wifi", "Pool"), c("Spa", "Laundry"))),
+    Notes = c("Foo", "Bar"),
+    
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+knitr::kable(two_records,format = "markdown")
+```
+
+
+
+|Name    | Price/night|Stars |Amenities    |Notes |
+|:-------|-----------:|:-----|:------------|:-----|
+|Sample1 |         150|***   |Wifi, Pool   |Foo   |
+|Sample2 |         180|****  |Spa, Laundry |Bar   |
+
+```r
+new_records <-
+  TravelBucketList$Hotels$insert(two_records)
+```
+
+Update records with a data frame:
+
+```r
+# change records
+record_ids <- sapply(new_records, function(x) x$id)
+two_records$`Price/night` <- two_records$`Price/night` + 5
+two_records$Stars <- "*****"
+
+knitr::kable(two_records,format = "markdown")
+```
+
+
+
+|Name    | Price/night|Stars |Amenities    |Notes |
+|:-------|-----------:|:-----|:------------|:-----|
+|Sample1 |         155|***** |Wifi, Pool   |Foo   |
+|Sample2 |         185|***** |Spa, Laundry |Bar   |
+
+```r
+updated <- 
+  TravelBucketList$Hotels$update(
+    record_id = record_ids, 
+    record_data = two_records)
+```
+
+Delete multiple records:
+
+```r
+# delete new records
+record_ids <- sapply(new_records, function(x) x$id)
+deleted <- 
+  TravelBucketList$Hotels$delete(record_ids)
 ```
 
 

@@ -89,6 +89,7 @@ air_get <- function(base, table_name, record_id = NULL,
     search_path <- paste0(search_path, "/", record_id)
   }
   request_url <- sprintf("%s/%s/%s?", air_url, base, search_path)
+  request_url <- URLencode(request_url)
 
   # append parameters to URL:
   param_list <- as.list(environment())[c(
@@ -164,6 +165,10 @@ air_parse <- function(res) {
 #' @export
 air_insert <- function(base, table_name, record_data) {
 
+  if(inherits(record_data, "data.frame")) {
+    return( air_insert_data_frame(base, table_name, record_data))
+  }
+
   record_data <- air_prepare_record(record_data)
   json_record_data <- jsonlite::toJSON(list(fields = record_data))
 
@@ -182,6 +187,26 @@ air_insert <- function(base, table_name, record_data) {
   air_validate(res)  # throws exception (stop) if error
   air_parse(res)     # returns R object
 }
+
+air_insert_data_frame <- function(base, table_name, records) {
+  lapply(seq_len(nrow(records)), function(i) {
+    record_data <-
+      unlist(as.list(records[i,]), recursive = FALSE)
+    air_insert(base = base, table_name = table_name, record_data = record_data)
+  })
+}
+
+air_update_data_frame <- function(base, table_name, record_ids, records) {
+  lapply(seq_len(nrow(records)), function(i) {
+    record_data <-
+      unlist(as.list(records[i,]), recursive = FALSE)
+    air_update(base = base,
+               table_name = table_name,
+               record_id = ifelse(is.null(record_ids), record_data$id, record_ids[i]),
+               record_data = record_data)
+  })
+}
+
 
 #' @rdname air_insert
 #' @param x Object to be marked as a multiple value field
@@ -216,6 +241,11 @@ air_prepare_record <- function(x) {
 #' @param record_id Id of the record to be deleted
 #' @export
 air_delete <- function(base, table_name, record_id) {
+
+  if(length(record_id) > 1) {
+    return(air_delete_vec(base, table_name, record_id))
+  }
+
   request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
 
   # call service:
@@ -230,6 +260,11 @@ air_delete <- function(base, table_name, record_id) {
   air_parse(res)     # returns R object
 }
 
+air_delete_vec <- Vectorize(air_delete, vectorize.args = "record_id", SIMPLIFY = FALSE)
+
+
+
+
 
 #' Update a record
 #'
@@ -243,6 +278,9 @@ air_delete <- function(base, table_name, record_id) {
 #' @export
 air_update <- function(base, table_name, record_id, record_data) {
 
+  if(inherits(record_data, "data.frame")) {
+    return(air_update_data_frame(base, table_name, record_id, record_data))
+  }
   record_data <- air_prepare_record(record_data)
   json_record_data <- jsonlite::toJSON(list(fields = record_data))
 
@@ -260,4 +298,56 @@ air_update <- function(base, table_name, record_id, record_data) {
 
   air_validate(res)  # throws exception (stop) if error
   air_parse(res)     # returns R object
+}
+
+#' Get airtable base object
+#'
+#' Creates airtable object with tables and functions
+#'
+#' @param base Airtable base
+#' @param tables Table names in the airtable base (character vector)
+#' @return Airtable base object
+#' @export
+air_base <- function(base, tables) {
+  res <- lapply(tables, function(x) air_table_funs(base, x))
+  names(res) <- tables
+  class(res) <- "airtable.base"
+  attr(res, "base") <- base
+  res
+}
+
+#' @keywords internal
+#' @export
+print.airtable.base <- function(x, ...) {
+  cat("Airtable base object", attr(x, "base"), "\n")
+  cat("Tables:", names(x), sep = "\n  ")
+}
+
+air_table_funs <- function(base, table_name) {
+
+  res_list <- list()
+  res_list[["get"]] <-
+    function(
+      record_id = NULL,
+      limit = NULL, offset = NULL,
+      view = NULL,
+      sortField = NULL, sortDirection = NULL,
+      combined_result = TRUE
+    ){
+      air_get(base, table_name, record_id, limit, offset, view, sortField, sortDirection, combined_result)
+    }
+  res_list[["insert"]] <-
+    function(record_data) {
+      air_insert(base, table_name, record_data)
+    }
+  res_list[["update"]] <-
+    function(record_id, record_data) {
+      air_update(base, table_name, record_id, record_data)
+    }
+  res_list[["delete"]] <-
+    function(record_id) {
+      air_delete(base, table_name, record_id)
+    }
+
+  res_list
 }
