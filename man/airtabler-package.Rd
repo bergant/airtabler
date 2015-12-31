@@ -8,15 +8,20 @@
 \description{
 Provides access to the Airtable API (\url{http://airtable.com/api}).
 }
-\details{
-After you've created and configured the schema of an Airtable base from the
-graphical interface, your Airtable base will provide its own API to create,
-read, update, and destroy records (from \url{http://airtable.com/api})
+\section{Setup}{
+
+  Create and configure the schema of an Airtable base on (\url{http://airtable.com})
+  and check the API on \url{http://airtable.com/api}.
 }
+
 \section{API key}{
- \pkg{airtabler} functions will read the API key from
+
+  Generate the airtable API key from your Airtable account page
+  (http://airtable.com/account).
+
+  \pkg{airtabler} functions will read the API key from
   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
-  initialized environvent variable create an .Renviron file in your R home
+  initialized environvent variable create an \code{.Renviron} file in your R home
   with a line like this:
 
   \code{AIRTABLE_API_KEY=************}
@@ -26,7 +31,8 @@ read, update, and destroy records (from \url{http://airtable.com/api})
 
 \section{Usage}{
 
-  Use \code{\link{air_get}}, \code{\link{air_insert}},
+  Use \code{\link{airtable}} function to get airtable base object
+  or just call primitives \code{\link{air_get}}, \code{\link{air_insert}},
   \code{\link{air_update}} and \code{\link{air_delete}} to access your
   airtable data.
 }

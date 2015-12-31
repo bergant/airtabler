@@ -20,12 +20,13 @@ Generate the airtable API key from your [Airtable account](http://airtable.com/a
 
 __airtabler__ functions will read the API key from
   environment variable `AIRTABLE_API_KEY`. To start R session with the
-  initialized environvent variable create an `.Renviron` file in your R home
+  initialized environvent variable create an `.Renviron` file in your home directory
   with a line like this:
   
 `AIRTABLE_API_KEY=your_api_key_here`
 
-To check where your R home is, type `normalizePath("~")` in your R console.
+To check where your home is, type `path.expand("~")` in your R console.
+
 
 ## Usage
 
@@ -36,7 +37,7 @@ Create airtable base object:
 library(airtabler)
 
 TravelBucketList <- 
-  air_base(
+  airtable(
     base = "appIS8u9n73hzwE7R", 
     tables = c("Destinations", "Hotels", "Travel Partners")
   )
@@ -47,8 +48,6 @@ _Note that you should replace the Airtable base identifiers and `record_id`s whe
 ### Get all records
 
 ```r
-library(airtabler)
-
 # get data
 hotels <- 
   TravelBucketList$Hotels$get()
@@ -122,7 +121,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=reccaUZKE5pxl1TA5
+## Inserted a record with ID=rec6fgNKQIqWNpiDh
 ```
 
 
@@ -144,7 +143,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=reccaUZKE5pxl1TA5. New price: 120
+## Updated a record with ID=rec6fgNKQIqWNpiDh. New price: 120
 ```
 
 ### Delete a record
@@ -158,7 +157,7 @@ TravelBucketList$Hotels$delete(new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "reccaUZKE5pxl1TA5"
+## [1] "rec6fgNKQIqWNpiDh"
 ```
 
 
@@ -183,17 +182,6 @@ two_records <-
     stringsAsFactors = FALSE
   )
 
-knitr::kable(two_records,format = "markdown")
-```
-
-
-
-|Name    | Price/night|Stars |Amenities    |Notes |
-|:-------|-----------:|:-----|:------------|:-----|
-|Sample1 |         150|***   |Wifi, Pool   |Foo   |
-|Sample2 |         180|****  |Spa, Laundry |Bar   |
-
-```r
 new_records <-
   TravelBucketList$Hotels$insert(two_records)
 ```
@@ -206,17 +194,7 @@ record_ids <- sapply(new_records, function(x) x$id)
 two_records$`Price/night` <- two_records$`Price/night` + 5
 two_records$Stars <- "*****"
 
-knitr::kable(two_records,format = "markdown")
-```
 
-
-
-|Name    | Price/night|Stars |Amenities    |Notes |
-|:-------|-----------:|:-----|:------------|:-----|
-|Sample1 |         155|***** |Wifi, Pool   |Foo   |
-|Sample2 |         185|***** |Spa, Laundry |Bar   |
-
-```r
 updated <- 
   TravelBucketList$Hotels$update(
     record_id = record_ids, 
@@ -232,4 +210,31 @@ deleted <-
   TravelBucketList$Hotels$delete(record_ids)
 ```
 
+
+## Programming with airtabler
+
+While having all airtable base tables and functions in one object 
+is handy in interactive mode, it is recommended to use primitive
+functions for adding, reading, updating and deleting when programming
+R packages:
+
+
+```r
+travel_base <- "appIS8u9n73hzwE7R"
+
+# read data
+hotels <- air_get(travel_base, "Hotels")
+
+# get one record
+radisson <- air_get(travel_base, "Hotels", record_id = "recgKO7K15YyWEsdb")
+
+# create
+inserted <- air_insert(travel_base, "Hotels", record_data)
+
+# update
+updated <- air_update(travel_base, "Hotels", record_id = inserted$id, record_data)
+
+# delete
+deleted <- air_delete(travel_base, "Hotels", record_id = inserted$id)
+```
 
