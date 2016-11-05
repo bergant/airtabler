@@ -84,9 +84,11 @@ to_url_params <- function(param_list) {
 #'   \code{record_id} is specified.
 #' @export
 air_get <- function(base, table_name, record_id = NULL,
-                   limit = NULL, offset = NULL,
+                   limit = NULL,
+                   offset = NULL,
                    view = NULL,
-                   sortField = NULL, sortDirection = NULL,
+                   sortField = NULL,
+                   sortDirection = NULL,
                    combined_result = TRUE) {
 
   search_path <- table_name
@@ -98,10 +100,9 @@ air_get <- function(base, table_name, record_id = NULL,
 
   # append parameters to URL:
   param_list <- as.list(environment())[c(
-    "limit", "offset", "view", "soetField", "sortDirection")]
+    "limit", "offset", "view", "sortField", "sortDirection")]
   param_list <- param_list[!sapply(param_list, is.null)]
   request_url <- paste0(request_url, to_url_params(param_list) )
-
   # call service:
   res <- httr::GET(
     url = request_url,
@@ -174,7 +175,7 @@ air_insert <- function(base, table_name, record_data) {
     return( air_insert_data_frame(base, table_name, record_data))
   }
 
-  record_data <- air_prepare_record(record_data)
+  record_data <- air_prepare_record(as.list(record_data))
   json_record_data <- jsonlite::toJSON(list(fields = record_data))
 
   request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
