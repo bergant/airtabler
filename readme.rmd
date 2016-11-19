@@ -65,7 +65,7 @@ Filter records with formula (see [formula field reference ](https://support.airt
 hotels <- 
   TravelBucketList$Hotels$select(filterByFormula = " ({Avg Review} > 8.5)" )
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 
 ```
 
@@ -78,7 +78,7 @@ hotels <-
   ))
 
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 
 ```
 

@@ -74,19 +74,19 @@ Filter records with formula (see [formula field reference ](https://support.airt
 hotels <- 
   TravelBucketList$Hotels$select(filterByFormula = " ({Avg Review} > 8.5)" )
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 ```
 
 
 
-id                  Name                                                       Stars    Avg Review   Price/night
-------------------  ---------------------------------------------------------  ------  -----------  ------------
-reccPOcMQaYt1tthb   Heritage Christchurch Hotel (Christchurch, New Zealand)    ****            8.8           176
-receHGZJ22WyUxocl   Urikana Boutique Hotel (Teresopolis, Brazil)               *****           9.0           146
-recjJJ4TX38sUwzfj   Hotel Berg (Keflavík, Iceland)                             ***             9.2           136
-recjUU2GT28yVvw7l   Sheraton Nha Trang (Nha Trang, Vietnam)                    *****           8.8           136
-reckPH6G384y3suac   Grand Residences Riviera Cancun (Puerto Morelos, Mexico)   *****           9.1           278
-reclG7Bd2g5Dtiw4J   Grand Budapest Hotel (Zubrowka)                            *****           9.0           156
+|id                |Name                                                     |Stars | Avg Review| Price/night|
+|:-----------------|:--------------------------------------------------------|:-----|----------:|-----------:|
+|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)  |****  |        8.8|         176|
+|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)             |***** |        9.0|         146|
+|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                           |***   |        9.2|         136|
+|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                  |***** |        8.8|         136|
+|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico) |***** |        9.1|         278|
+|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                          |***** |        9.0|         156|
 
 Sort data with sort parameter:
 
@@ -98,20 +98,20 @@ hotels <-
   ))
 
 
-knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 ```
 
 
 
-id                  Name                                                           Stars    Avg Review   Price/night
-------------------  -------------------------------------------------------------  ------  -----------  ------------
-recjJJ4TX38sUwzfj   Hotel Berg (Keflavík, Iceland)                                 ***             9.2           136
-reckPH6G384y3suac   Grand Residences Riviera Cancun (Puerto Morelos, Mexico)       *****           9.1           278
-receHGZJ22WyUxocl   Urikana Boutique Hotel (Teresopolis, Brazil)                   *****           9.0           146
-reclG7Bd2g5Dtiw4J   Grand Budapest Hotel (Zubrowka)                                *****           9.0           156
-recjUU2GT28yVvw7l   Sheraton Nha Trang (Nha Trang, Vietnam)                        *****           8.8           136
-reccPOcMQaYt1tthb   Heritage Christchurch Hotel (Christchurch, New Zealand)        ****            8.8           176
-recgKO7K15YyWEsdb   Radisson Blu Hotel Marseille Vieux Port (Marseilles, France)   ****            8.2           170
+|id                |Name                                                         |Stars | Avg Review| Price/night|
+|:-----------------|:------------------------------------------------------------|:-----|----------:|-----------:|
+|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                               |***   |        9.2|         136|
+|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |        9.1|         278|
+|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)                 |***** |        9.0|         146|
+|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |        9.0|         156|
+|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                      |***** |        8.8|         136|
+|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)      |****  |        8.8|         176|
+|recgKO7K15YyWEsdb |Radisson Blu Hotel Marseille Vieux Port (Marseilles, France) |****  |        8.2|         170|
 
 
 Other optional arguments:
@@ -167,7 +167,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=recTaLppTmdmR4YW3
+## Inserted a record with ID=recpHtzVC5mZamO2k
 ```
 
 
@@ -189,7 +189,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=recTaLppTmdmR4YW3. New price: 120
+## Updated a record with ID=recpHtzVC5mZamO2k. New price: 120
 ```
 
 ### Delete a record
@@ -203,7 +203,7 @@ TravelBucketList$Hotels$delete(new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "recTaLppTmdmR4YW3"
+## [1] "recpHtzVC5mZamO2k"
 ```
 
 
