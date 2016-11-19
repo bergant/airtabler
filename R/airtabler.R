@@ -38,27 +38,6 @@ air_api_key <- function() {
   key
 }
 
-to_url_params <- function(param_list) {
-  # Convert parameters to url string
-  # Example:
-  #   to_url_params(list(a=1, b="2", c="An apple"))
-  #   to_url_params(list(a=1, b="2", c="An apple"))
-  # Result:
-  #   #> [1] "a=1&b=2"
-  for(i in seq_along(param_list)) {
-    if(class(param_list[[i]]) == "character") {
-      param_list[[i]] <- gsub(" ", "%20", param_list[[i]])
-    }
-  }
-  res <-
-    paste(
-      sapply(names(param_list), function(n) {
-        sprintf("%s=%s",n, param_list[n])
-      }),
-      collapse = "&"
-    )
-  URLencode(res)
-}
 
 #' Get a list of records or retreive a single
 #'
@@ -96,13 +75,130 @@ air_get <- function(base, table_name, record_id = NULL,
     search_path <- paste0(search_path, "/", record_id)
   }
   request_url <- sprintf("%s/%s/%s?", air_url, base, search_path)
-  request_url <- URLencode(request_url)
+  request_url <- utils::URLencode(request_url)
 
   # append parameters to URL:
   param_list <- as.list(environment())[c(
     "limit", "offset", "view", "sortField", "sortDirection")]
   param_list <- param_list[!sapply(param_list, is.null)]
-  request_url <- paste0(request_url, to_url_params(param_list) )
+  request_url <- httr::modify_url(request_url, query = param_list)
+  # call service:
+  res <- httr::GET(
+    url = request_url,
+    config = httr::add_headers(Authorization = paste("Bearer", air_api_key()))
+  )
+  air_validate(res)      # throws exception (stop) if error
+  ret <- air_parse(res)  # returns R object
+  if(combined_result && is.null(record_id)) {
+    # combine ID, Fields and CreatedTime in the same data frame:
+    ret <-
+      cbind(
+        id = ret$id, ret$fields, createdTime = ret$createdTime,
+        stringsAsFactors =FALSE
+      )
+  }
+  ret
+}
+
+list_params <- function(x, par_name) {
+  # converts a list of sublists to a list
+  # Example:
+  # sort = list(
+  #   list(field="Avg Review", direction = "desc"),
+  #   list(field="Price/night", direction = "asc"))
+  # list_params(sort, "sort")
+  #
+  # fields = list("Country", "Name")
+  # list_params(fields, "field")
+  if(!is.list(x)) {
+    stop(par_name, " parameter must be a list")
+  }
+  names(x) <- sprintf("%s[%s]", par_name, 0:(length(x)-1))
+  if(is.list(x[[1]])) {
+    x <- unlist(x, recursive = FALSE)
+    names(x) <- gsub("\\.", "[", names(x))
+    names(x) <- gsub("$", "]", names(x))
+  }
+  x
+}
+
+
+#' Select
+#'
+#' Select records from table
+#'
+#' @section View:
+#'   You can retrieve records in an order of a view by providing the name or ID of
+#'   the view in the view query parameter. The results will include only records
+#'   visible in the order they are displayed.
+#'
+#' @section Filter by formula:
+#'   The formula will be evaluated for each record, and if the result is not 0,
+#'   false, "", NaN, [], or #Error! the record will be included in the response.
+#'   If combined with view, only records in that view which satisfy the formula
+#'   will be returned. For example, to only include records where Country isn't
+#'   empty, pass in: NOT({Country} = '')
+#'
+#' @section Sorting:
+#'   Each sort object must have a field key specifying the name of
+#'   the field to sort on, and an optional direction key that is either "asc" or
+#'   "desc". The default direction is "asc".
+#'   For example, to sort records by Country, pass in: \code{list(field =
+#'   "Country", direction = "desc")}
+#'
+#' @param base Airtable base
+#' @param table_name Table name
+#' @param record_id (optional) Use record ID argument to retrieve an existing
+#'   record details
+#' @param fields (optional) Only data for fields whose names are in this vector
+#'   will be included in the records. If you don't need every field, you can use
+#'   this parameter to reduce the amount of data transferred.
+#' @param filterByFormula (optional) A formula used to filter records.
+#' @param maxRecord (optional) The maximum total number of records that will be
+#'   returned.
+#' @param sort A list of sort objects that specifies how the records will be
+#'   ordered.
+#' @param view (optional) The name or ID of the view defined in the table
+#' @param pageSize (optional) The number of records returned in each request.
+#'   Must be less than or equal to 100. Default is 100.
+#' @param offset (optional) To fetch the next page of records set this argument
+#'   with a value of offset element from previous response
+#' @param combined_result If TRUE (default) all data is returned in the same
+#'   data frame. If FALSE table fields are returned in separate \code{fields}
+#'   element.
+#' @return A data frame with records or a list with record details if
+#'   \code{record_id} is specified.
+#' @export
+air_select <- function(
+  base, table_name, record_id = NULL,
+  fields = NULL,
+  filterByFormula = NULL,
+  maxRecord = NULL,
+  sort = NULL,
+  view = NULL,
+  pageSize = NULL,
+  offset = NULL,
+  combined_result = TRUE) {
+
+  search_path <- table_name
+  if(!missing(record_id)) {
+    search_path <- paste0(search_path, "/", record_id)
+  }
+  request_url <- sprintf("%s/%s/%s?", air_url, base, search_path)
+  request_url <- utils::URLencode(request_url)
+
+  # append parameters to URL:
+  param_list <- as.list(environment())[c(
+    "filterByFormula", "maxRecord", "pageSize", "offset", "view")]
+  param_list <- param_list[!sapply(param_list, is.null)]
+  if(!is.null(sort)) {
+    param_list <- c(param_list, list_params(x = sort, par_name = "sort"))
+  }
+  if(!is.null(fields)) {
+    param_list <- c(param_list, list_params(x = fields, par_name = "fields"))
+  }
+
+  request_url <- httr::modify_url(url = request_url, query = param_list)
   # call service:
   res <- httr::GET(
     url = request_url,
@@ -344,9 +440,26 @@ print.airtable.base <- function(x, ...) {
   cat("Tables:", names(x), sep = "\n  ")
 }
 
+
+
 air_table_funs <- function(base, table_name) {
 
   res_list <- list()
+  res_list[["select"]] <-
+    function(
+      record_id = NULL,
+      fields = NULL,
+      filterByFormula = NULL,
+      maxRecord = NULL,
+      sort = NULL,
+      view = NULL,
+      pageSize = NULL,
+      offset = NULL,
+      combined_result = TRUE
+    ){
+      air_select(base, table_name, record_id,
+                 fields, filterByFormula, maxRecord, sort, view, pageSize, offset, combined_result)
+    }
   res_list[["get"]] <-
     function(
       record_id = NULL,

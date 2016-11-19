@@ -45,12 +45,12 @@ TravelBucketList <-
 
 _Note that you should replace the Airtable base identifiers and `record_id`s when running the examples._
 
-### Get all records
+### Get records
+Use select function to get all records:
 
 ```r
-# get data
 hotels <- 
-  TravelBucketList$Hotels$get()
+  TravelBucketList$Hotels$select()
 
 knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdown")
 ```
@@ -67,16 +67,61 @@ knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdow
 |reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |         278|
 |reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |         156|
 
-Optional arguments to `get` function:
+Filter records with formula (see [formula field reference ](https://support.airtable.com/hc/en-us/articles/203255215-Formula-Field-Reference)).
 
+
+```r
+hotels <- 
+  TravelBucketList$Hotels$select(filterByFormula = " ({Avg Review} > 8.5)" )
+
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+```
+
+
+
+id                  Name                                                       Stars    Avg Review   Price/night
+------------------  ---------------------------------------------------------  ------  -----------  ------------
+reccPOcMQaYt1tthb   Heritage Christchurch Hotel (Christchurch, New Zealand)    ****            8.8           176
+receHGZJ22WyUxocl   Urikana Boutique Hotel (Teresopolis, Brazil)               *****           9.0           146
+recjJJ4TX38sUwzfj   Hotel Berg (Keflavík, Iceland)                             ***             9.2           136
+recjUU2GT28yVvw7l   Sheraton Nha Trang (Nha Trang, Vietnam)                    *****           8.8           136
+reckPH6G384y3suac   Grand Residences Riviera Cancun (Puerto Morelos, Mexico)   *****           9.1           278
+reclG7Bd2g5Dtiw4J   Grand Budapest Hotel (Zubrowka)                            *****           9.0           156
+
+Sort data with sort parameter:
+
+```r
+hotels <- 
+  TravelBucketList$Hotels$select(sort = list(
+    list(field="Avg Review", direction = "desc"),
+    list(field="Price/night", direction = "asc")
+  ))
+
+
+knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")])
+```
+
+
+
+id                  Name                                                           Stars    Avg Review   Price/night
+------------------  -------------------------------------------------------------  ------  -----------  ------------
+recjJJ4TX38sUwzfj   Hotel Berg (Keflavík, Iceland)                                 ***             9.2           136
+reckPH6G384y3suac   Grand Residences Riviera Cancun (Puerto Morelos, Mexico)       *****           9.1           278
+receHGZJ22WyUxocl   Urikana Boutique Hotel (Teresopolis, Brazil)                   *****           9.0           146
+reclG7Bd2g5Dtiw4J   Grand Budapest Hotel (Zubrowka)                                *****           9.0           156
+recjUU2GT28yVvw7l   Sheraton Nha Trang (Nha Trang, Vietnam)                        *****           8.8           136
+reccPOcMQaYt1tthb   Heritage Christchurch Hotel (Christchurch, New Zealand)        ****            8.8           176
+recgKO7K15YyWEsdb   Radisson Blu Hotel Marseille Vieux Port (Marseilles, France)   ****            8.2           170
+
+
+Other optional arguments:
+
+* __fields__ A list of fields to be returned (instead of all fields).
 * __view__ The name or ID of the view, defined on the table.
-* __limit__ A limit on the number of records to be returned.
-  Limit can range between 1 and 100.
+* __maxRecord__ The maximum total number of records that will be returned.
+* __pageSize__ The number of records returned in each request.
 * __offset__ Page offset returned by the previous list-records
   call. Note that this is represented by a record ID, not a numerical offset.
-* __sortField__ The field name to use for sorting
-* __sortDirection__ "asc" or "desc". The sort order in which the
-  records will be returned. Defaults to asc.
 
 ### Retrieve a record
 Add the `record_id` argument to get the details of a record:
@@ -84,7 +129,8 @@ Add the `record_id` argument to get the details of a record:
 
 ```r
 radisson <- 
-  TravelBucketList$Hotels$get(record_id = "recgKO7K15YyWEsdb")
+  
+  TravelBucketList$Hotels$select(record_id = "recgKO7K15YyWEsdb")
 
 str(radisson$fields, max.level = 1)
 ```
@@ -121,7 +167,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=rec6fgNKQIqWNpiDh
+## Inserted a record with ID=recTaLppTmdmR4YW3
 ```
 
 
@@ -143,7 +189,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=rec6fgNKQIqWNpiDh. New price: 120
+## Updated a record with ID=recTaLppTmdmR4YW3. New price: 120
 ```
 
 ### Delete a record
@@ -157,7 +203,7 @@ TravelBucketList$Hotels$delete(new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "rec6fgNKQIqWNpiDh"
+## [1] "recTaLppTmdmR4YW3"
 ```
 
 
@@ -223,10 +269,10 @@ R packages:
 travel_base <- "appIS8u9n73hzwE7R"
 
 # read data
-hotels <- air_get(travel_base, "Hotels")
+hotels <- air_select(travel_base, "Hotels")
 
 # get one record
-radisson <- air_get(travel_base, "Hotels", record_id = "recgKO7K15YyWEsdb")
+radisson <- air_select(travel_base, "Hotels", record_id = "recgKO7K15YyWEsdb")
 
 # create
 inserted <- air_insert(travel_base, "Hotels", record_data)
