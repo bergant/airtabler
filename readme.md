@@ -113,15 +113,36 @@ knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], for
 |reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)      |****  |        8.8|         176|
 |recgKO7K15YyWEsdb |Radisson Blu Hotel Marseille Vieux Port (Marseilles, France) |****  |        8.2|         170|
 
+### Using page size and offset
+
+Define page size with `pageSize`:
+
+```r
+hotels <- TravelBucketList$Hotels$select(pageSize = 3)
+nrow(hotels)
+```
+
+```
+## [1] 3
+```
+
+Continue at offset, returned by previous select:
+
+```r
+hotels <- TravelBucketList$Hotels$select(offset = get_offset(hotels))
+nrow(hotels)
+```
+
+```
+## [1] 4
+```
+
 
 Other optional arguments:
 
 * __fields__ A list of fields to be returned (instead of all fields).
 * __view__ The name or ID of the view, defined on the table.
 * __maxRecord__ The maximum total number of records that will be returned.
-* __pageSize__ The number of records returned in each request.
-* __offset__ Page offset returned by the previous list-records
-  call. Note that this is represented by a record ID, not a numerical offset.
 
 ### Retrieve a record
 Add the `record_id` argument to get the details of a record:
@@ -167,7 +188,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=recpHtzVC5mZamO2k
+## Inserted a record with ID=recPw5QGqFoF0pNwl
 ```
 
 
@@ -189,7 +210,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=recpHtzVC5mZamO2k. New price: 120
+## Updated a record with ID=recPw5QGqFoF0pNwl. New price: 120
 ```
 
 ### Delete a record
@@ -203,7 +224,7 @@ TravelBucketList$Hotels$delete(new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "recpHtzVC5mZamO2k"
+## [1] "recPw5QGqFoF0pNwl"
 ```
 
 

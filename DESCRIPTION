@@ -1,8 +1,8 @@
 Package: airtabler
 Type: Package
 Title: Interface to the Airtable API
-Version: 0.1.4
-Date: 2016-11-19
+Version: 0.1.5
+Date: 2017-05-11
 Author: Darko Bergant
 Maintainer: Darko Bergant <darko.bergant@gmail.com>
 Description: Provides access to the Airtable (airtable.com) API.

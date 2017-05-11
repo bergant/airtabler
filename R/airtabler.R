@@ -206,6 +206,7 @@ air_select <- function(
   )
   air_validate(res)      # throws exception (stop) if error
   ret <- air_parse(res)  # returns R object
+  offset <- attr(ret, "offset")
   if(combined_result && is.null(record_id)) {
     # combine ID, Fields and CreatedTime in the same data frame:
     ret <-
@@ -213,8 +214,20 @@ air_select <- function(
         id = ret$id, ret$fields, createdTime = ret$createdTime,
         stringsAsFactors =FALSE
       )
+    attr(ret, "offset") <- offset
   }
   ret
+}
+
+#' Get offset
+#'
+#' Returns airtable offset id from previous select
+#'
+#' @param x Last result
+#' @return Airtable offset id
+#' @export
+get_offset <- function(x) {
+  attr(x, "offset")
 }
 
 air_validate <- function(res) {
@@ -245,6 +258,9 @@ air_parse <- function(res) {
   res_obj <- jsonlite::fromJSON(httr::content(res, as = "text"))
   if(!is.null(res_obj$records)) {
     res <- res_obj$records
+    if(!is.null(res_obj$offset)) {
+      attr(res, "offset") <- res_obj$offset
+    }
   } else {
     res <- res_obj
   }
