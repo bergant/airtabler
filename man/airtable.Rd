@@ -33,4 +33,3 @@ TravelBucketList <-
   destinations <- TravelBucketList$Destinations$get()
 }
 }
-

@@ -41,4 +41,3 @@ You can retrieve records in an order of a view by providing the name or ID of
 the view in the view query parameter. The results will include only records
 visible in the order they are displayed.
 }
-

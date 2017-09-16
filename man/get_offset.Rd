@@ -15,4 +15,3 @@ Airtable offset id
 \description{
 Returns airtable offset id from previous select
 }
-

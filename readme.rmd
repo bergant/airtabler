@@ -100,6 +100,16 @@ nrow(hotels)
 ```
 
 
+To fetch all rows (even > 100 records) use `select_all`. The `select_all` 
+function will handle the offset and return the result as a single object.
+
+```{r select_all}
+hotels <- TravelBucketList$Hotels$select_all()
+nrow(hotels)
+
+```
+
+
 Other optional arguments:
 
 * __fields__ A list of fields to be returned (instead of all fields).

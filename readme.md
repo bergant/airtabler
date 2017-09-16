@@ -138,6 +138,20 @@ nrow(hotels)
 ```
 
 
+To fetch all rows (even > 100 records) use `select_all`. The `select_all` 
+function will handle the offset and return the result as a single object.
+
+
+```r
+hotels <- TravelBucketList$Hotels$select_all()
+nrow(hotels)
+```
+
+```
+## [1] 7
+```
+
+
 Other optional arguments:
 
 * __fields__ A list of fields to be returned (instead of all fields).
@@ -188,7 +202,7 @@ cat("Inserted a record with ID=", new_hotel$id, sep = "")
 ```
 
 ```
-## Inserted a record with ID=recPw5QGqFoF0pNwl
+## Inserted a record with ID=recGtWMprUr7f2EvT
 ```
 
 
@@ -210,7 +224,7 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
 ```
 
 ```
-## Updated a record with ID=recPw5QGqFoF0pNwl. New price: 120
+## Updated a record with ID=recGtWMprUr7f2EvT. New price: 120
 ```
 
 ### Delete a record
@@ -224,7 +238,7 @@ TravelBucketList$Hotels$delete(new_hotel$id)
 ## [1] TRUE
 ## 
 ## $id
-## [1] "recPw5QGqFoF0pNwl"
+## [1] "recGtWMprUr7f2EvT"
 ```
 
 

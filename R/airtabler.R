@@ -207,7 +207,7 @@ air_select <- function(
   air_validate(res)      # throws exception (stop) if error
   ret <- air_parse(res)  # returns R object
   offset <- attr(ret, "offset")
-  if(combined_result && is.null(record_id)) {
+  if(combined_result && is.null(record_id) && length(ret) > 0) {
     # combine ID, Fields and CreatedTime in the same data frame:
     ret <-
       cbind(
@@ -474,8 +474,33 @@ air_table_funs <- function(base, table_name) {
       combined_result = TRUE
     ){
       air_select(base, table_name, record_id,
-                 fields, filterByFormula, maxRecord, sort, view, pageSize, offset, combined_result)
+                 fields, filterByFormula, maxRecord, sort, view,
+                 pageSize, offset, combined_result)
     }
+  res_list[["select_all"]] <- function(
+    record_id = NULL,
+    fields = NULL,
+    filterByFormula = NULL,
+    maxRecord = NULL,
+    sort = NULL,
+    view = NULL,
+    pageSize = NULL
+  ){
+    ret_all <- list()
+    ret_offset = NULL
+    while({
+      ret <- air_select(
+        base, table_name, record_id,
+        fields, filterByFormula, maxRecord, sort, view,
+        pageSize, ret_offset, combined_result = TRUE)
+      ret_offset <- get_offset(ret)
+      ret_all <- c(ret_all, list(ret))
+      !is.null(ret_offset)
+    }) {}
+    if(length(ret_all) == 0) { return(list())}
+    do.call(rbind, ret_all)
+  }
+
   res_list[["get"]] <-
     function(
       record_id = NULL,

@@ -17,4 +17,3 @@ air_delete(base, table_name, record_id)
 Deletes a record and returns the deleted record id if the call
 succeeded.
 }
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/airtabler.R
 \docType{package}
 \name{airtabler-package}
-\alias{airtabler}
 \alias{airtabler-package}
+\alias{airtabler}
 \title{airtabler: Interface to the Airtable API}
 \description{
 Provides access to the Airtable API (\url{http://airtable.com/api}).
