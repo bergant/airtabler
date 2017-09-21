@@ -498,7 +498,8 @@ air_table_funs <- function(base, table_name) {
       !is.null(ret_offset)
     }) {}
     if(length(ret_all) == 0) { return(list())}
-    do.call(rbind, ret_all)
+
+    .bind_df(ret_all)
   }
 
   res_list[["get"]] <-
@@ -526,3 +527,25 @@ air_table_funs <- function(base, table_name) {
 
   res_list
 }
+
+.bind_df <- function(x) {
+  # x = list of data frames
+  if(length(unique(lengths(x))) != 1) {
+
+    # add missing columns
+    col_names <- unique(unlist(lapply(x, names)))
+    col_missing <- lapply(x, function(x) setdiff(col_names, names(x)))
+
+    x <- lapply(seq_along(x), function(i) {
+      ret <- x[[i]]
+      for(col in col_missing[[i]]) {
+        ret[[col]] <- NA
+      }
+      ret
+    })
+  }
+
+  do.call(rbind, x)
+
+}
+
