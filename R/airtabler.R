@@ -283,7 +283,7 @@ air_parse <- function(res) {
 #' @export
 air_insert <- function(base, table_name, record_data) {
 
-  if(inherits(record_data, "data.frame")) {
+  if( inherits(record_data, "data.frame")) {
     return( air_insert_data_frame(base, table_name, record_data))
   }
 
@@ -309,7 +309,7 @@ air_insert <- function(base, table_name, record_data) {
 air_insert_data_frame <- function(base, table_name, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <-
-      unlist(as.list(records[i,]), recursive = FALSE)
+      as.list(records[i,])
     air_insert(base = base, table_name = table_name, record_data = record_data)
   })
 }
@@ -341,7 +341,9 @@ air_prepare_record <- function(x) {
     if(inherits(x[[i]], "air_multiple")) {
       class(x[[i]]) <- class(x[[i]])[-1]
     } else {
-      if(length(x[[i]]) == 1 ) {
+      if(is.list(x[[i]])) {
+        x[[i]] <- unlist(x[[i]])
+      } else if(length(x[[i]]) == 1) {
         x[[i]] <- jsonlite::unbox(x[[i]])
       }
     }
