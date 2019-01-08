@@ -341,7 +341,9 @@ air_prepare_record <- function(x) {
     if(inherits(x[[i]], "air_multiple")) {
       class(x[[i]]) <- class(x[[i]])[-1]
     } else {
-      if(length(x[[i]]) == 1 ) {
+      if(is.list(x[[i]])) {
+        x[[i]] <- unlist(x[[i]])
+      } else if(length(x[[i]]) == 1) {
         x[[i]] <- jsonlite::unbox(x[[i]])
       }
     }
