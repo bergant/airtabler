@@ -258,14 +258,18 @@ air_validate <- function(res) {
 
 air_parse <- function(res) {
   res_obj <- jsonlite::fromJSON(httr::content(res, as = "text"))
-  if(!is.null(res_obj$records)) {
-    res <- res_obj$records
-    if(!is.null(res_obj$offset)) {
-      attr(res, "offset") <- res_obj$offset
-    }
-  } else {
-    res <- res_obj
+
+  # Single entry returned, terminate early: expose all key-value pairs
+  if(is.null(res_obj$records)) { return(res_obj) }
+
+  # Multiple entries returned: expose values under 'records' key
+  res <- res_obj$records
+
+  # Add offset, if available
+  if(!is.null(res_obj$offset)) {
+    attr(res, "offset") <- res_obj$offset
   }
+
   res
 }
 
