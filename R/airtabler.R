@@ -216,8 +216,8 @@ air_select <- function(
         id = ret$id, ret$fields, createdTime = ret$createdTime,
         stringsAsFactors =FALSE
       )
-    attr(ret, "offset") <- offset
   }
+  attr(ret, "offset") <- offset
   ret
 }
 
