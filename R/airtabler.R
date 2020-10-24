@@ -269,7 +269,6 @@ air_parse <- function(res) {
   if(!is.null(res_obj$offset)) {
     attr(res, "offset") <- res_obj$offset
   }
-
   res
 }
 
