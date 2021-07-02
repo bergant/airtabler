@@ -287,10 +287,12 @@ air_insert <- function(base, table_name, record_data) {
     return( air_insert_data_frame(base, table_name, record_data))
   }
 
-  record_data <- air_prepare_record(as.list(record_data))
-  json_record_data <- jsonlite::toJSON(list(fields = record_data))
+  fields <- list(fields = record_data)
+  records <- list(records = list(fields))
+  json_record_data <- jsonlite::toJSON(records, pretty = F)
 
   request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
+  request_url <- URLencode(request_url)
 
   # call service:
   res <- httr::POST(
