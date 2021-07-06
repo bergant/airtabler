@@ -12,7 +12,7 @@
 #'
 #'   \pkg{airtabler} functions will read the API key from
 #'   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
-#'   initialized environvent variable create an \code{.Renviron} file in your R home
+#'   initialized environment variable create an \code{.Renviron} file in your R home
 #'   with a line like this:
 #'
 #'   \code{AIRTABLE_API_KEY=************}
@@ -29,6 +29,7 @@
 NULL
 
 air_url <- "https://api.airtable.com/v0"
+air_meta_url <- "https://api.airtable.com/v0/meta/bases"
 
 air_api_key <- function() {
   key <- Sys.getenv("AIRTABLE_API_KEY")
@@ -38,8 +39,16 @@ air_api_key <- function() {
   key
 }
 
+air_secret_key <- function(){
+  key <- Sys.getenv("AIRTABLE_SECRET_KEY")
+  if(key == "") {
+    stop("AIRTABLE_SECRET_KEY environment variable is empty. See ?airtabler for help.")
+  }
+  key
+}
 
-#' Get a list of records or retreive a single
+
+#' Get a list of records or retrieve a single
 #'
 #' You can retrieve records in an order of a view by providing the name or ID of
 #' the view in the view query parameter. The results will include only records
