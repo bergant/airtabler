@@ -21,7 +21,7 @@ Provides access to the Airtable API (\url{http://airtable.com/api}).
 
   \pkg{airtabler} functions will read the API key from
   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
-  initialized environvent variable create an \code{.Renviron} file in your R home
+  initialized environment variable create an \code{.Renviron} file in your R home
   with a line like this:
 
   \code{AIRTABLE_API_KEY=************}
