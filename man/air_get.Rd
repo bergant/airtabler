@@ -2,11 +2,20 @@
 % Please edit documentation in R/airtabler.R
 \name{air_get}
 \alias{air_get}
-\title{Get a list of records or retreive a single}
+\title{Get a list of records or retrieve a single}
 \usage{
-air_get(base, table_name, record_id = NULL, limit = NULL, offset = NULL,
-  view = NULL, sortField = NULL, sortDirection = NULL,
-  combined_result = TRUE)
+air_get(
+  base,
+  table_name,
+  record_id = NULL,
+  limit = NULL,
+  offset = NULL,
+  view = NULL,
+  fields = NULL,
+  sortField = NULL,
+  sortDirection = NULL,
+  combined_result = TRUE
+)
 }
 \arguments{
 \item{base}{Airtable base}
@@ -24,13 +33,17 @@ call. Note that this is represented by a record ID, not a numerical offset.}
 
 \item{view}{(optional) The name or ID of the view}
 
+\item{fields}{(optional) Only data for fields whose names are in this list
+will be included in the records. If you don't need every field, you can use
+this parameter to reduce the amount of data transferred.}
+
 \item{sortField}{(optional) The field name to use for sorting}
 
 \item{sortDirection}{(optional) "asc" or "desc". The sort order in which the
 records will be returned. Defaults to asc.}
 
-\item{combined_result}{If TRUE (default) all data is returned in the same data
-frame. If FALSE table fields are returned in separate \code{fields} element.}
+\item{combined_result}{If TRUE (default) all data is returned in the same data.
+If FALSE table fields are returned in separate \code{fields} element.}
 }
 \value{
 A data frame with records or a list with record details if
