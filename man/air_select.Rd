@@ -4,9 +4,19 @@
 \alias{air_select}
 \title{Select}
 \usage{
-air_select(base, table_name, record_id = NULL, fields = NULL,
-  filterByFormula = NULL, maxRecord = NULL, sort = NULL, view = NULL,
-  pageSize = NULL, offset = NULL, combined_result = TRUE)
+air_select(
+  base,
+  table_name,
+  record_id = NULL,
+  fields = NULL,
+  filterByFormula = NULL,
+  maxRecord = NULL,
+  sort = NULL,
+  view = NULL,
+  pageSize = NULL,
+  offset = NULL,
+  combined_result = TRUE
+)
 }
 \arguments{
 \item{base}{Airtable base}
@@ -16,7 +26,7 @@ air_select(base, table_name, record_id = NULL, fields = NULL,
 \item{record_id}{(optional) Use record ID argument to retrieve an existing
 record details}
 
-\item{fields}{(optional) Only data for fields whose names are in this vector
+\item{fields}{(optional) Only data for fields whose names are in this list
 will be included in the records. If you don't need every field, you can use
 this parameter to reduce the amount of data transferred.}
 
