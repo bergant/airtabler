@@ -12,7 +12,7 @@
 #'
 #'   \pkg{airtabler} functions will read the API key from
 #'   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
-#'   initialized environvent variable create an \code{.Renviron} file in your R home
+#'   initialized environment variable create an \code{.Renviron} file in your R home
 #'   with a line like this:
 #'
 #'   \code{AIRTABLE_API_KEY=************}
@@ -29,6 +29,7 @@
 NULL
 
 air_url <- "https://api.airtable.com/v0"
+air_meta_url <- "https://api.airtable.com/v0/meta/bases"
 
 air_api_key <- function() {
   key <- Sys.getenv("AIRTABLE_API_KEY")
@@ -38,8 +39,16 @@ air_api_key <- function() {
   key
 }
 
+air_secret_key <- function(){
+  key <- Sys.getenv("AIRTABLE_SECRET_KEY")
+  if(key == "") {
+    stop("AIRTABLE_SECRET_KEY environment variable is empty. See ?airtabler for help.")
+  }
+  key
+}
 
-#' Get a list of records or retreive a single
+
+#' Get a list of records or retrieve a single
 #'
 #' You can retrieve records in an order of a view by providing the name or ID of
 #' the view in the view query parameter. The results will include only records
@@ -57,20 +66,26 @@ air_api_key <- function() {
 #' @param sortField (optional) The field name to use for sorting
 #' @param sortDirection (optional) "asc" or "desc". The sort order in which the
 #'   records will be returned. Defaults to asc.
-#' @param combined_result If TRUE (default) all data is returned in the same data
-#'   frame. If FALSE table fields are returned in separate \code{fields} element.
+#' @param combined_result If TRUE (default) all data is returned in the same data.
+#'  If FALSE table fields are returned in separate \code{fields} element.
+#' @param fields (optional) Only data for fields whose names are in this list
+#'   will be included in the records. If you don't need every field, you can use
+#'   this parameter to reduce the amount of data transferred.
 #' @return A data frame with records or a list with record details if
 #'   \code{record_id} is specified.
 #' @export
-air_get <- function(base, table_name, record_id = NULL,
+air_get <- function(base, table_name,
+                   record_id = NULL,
                    limit = NULL,
                    offset = NULL,
                    view = NULL,
+                   fields = NULL,
                    sortField = NULL,
                    sortDirection = NULL,
                    combined_result = TRUE) {
 
   search_path <- table_name
+
   if(!missing(record_id)) {
     search_path <- paste0(search_path, "/", record_id)
   }
@@ -81,7 +96,13 @@ air_get <- function(base, table_name, record_id = NULL,
   param_list <- as.list(environment())[c(
     "limit", "offset", "view", "sortField", "sortDirection")]
   param_list <- param_list[!sapply(param_list, is.null)]
+  if(!is.null(fields)) {
+    param_list <- c(param_list, list_params(x = fields, par_name = "fields"))
+  }
+
   request_url <- httr::modify_url(request_url, query = param_list)
+  request_url <- gsub(pattern = "fields=",replacement = "fields%5B%5D=",x = request_url)
+
   # call service:
   res <- httr::GET(
     url = request_url,
@@ -150,7 +171,7 @@ list_params <- function(x, par_name) {
 #' @param table_name Table name
 #' @param record_id (optional) Use record ID argument to retrieve an existing
 #'   record details
-#' @param fields (optional) Only data for fields whose names are in this vector
+#' @param fields (optional) Only data for fields whose names are in this list
 #'   will be included in the records. If you don't need every field, you can use
 #'   this parameter to reduce the amount of data transferred.
 #' @param filterByFormula (optional) A formula used to filter records.
@@ -287,10 +308,12 @@ air_insert <- function(base, table_name, record_data) {
     return( air_insert_data_frame(base, table_name, record_data))
   }
 
-  record_data <- air_prepare_record(as.list(record_data))
-  json_record_data <- jsonlite::toJSON(list(fields = record_data))
+  fields <- list(fields = record_data)
+  records <- list(records = list(fields))
+  json_record_data <- jsonlite::toJSON(records, pretty = F)
 
   request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
+  request_url <- utils::URLencode(request_url)
 
   # call service:
   res <- httr::POST(

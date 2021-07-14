@@ -3,6 +3,7 @@
 S3method(print,airtable.base)
 export(air_delete)
 export(air_get)
+export(air_get_schema)
 export(air_insert)
 export(air_select)
 export(air_update)
