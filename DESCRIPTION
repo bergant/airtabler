@@ -12,6 +12,8 @@ License: MIT + file LICENSE
 URL: https://github.com/bergant/airtabler
 LazyData: TRUE
 Imports:
+    glue,
+    dplyr,
     httr,
     jsonlite
 RoxygenNote: 7.1.1
