@@ -302,38 +302,61 @@ air_parse <- function(res) {
 #' @param record_data Named list of values. You can include all, some, or none
 #'   of the field values
 #' @export
+#'
+#'
 air_insert <- function(base, table_name, record_data) {
 
   if( inherits(record_data, "data.frame")) {
     return( air_insert_data_frame(base, table_name, record_data))
   }
 
+  # create json records
+  json_record_data <- air_make_json(base, table_name, record_data)
+
+  # call service:
+  air_make_request(base,table_name,json_record_data)
+}
+
+
+air_make_json <- function (base, table_name, record_data){
+  if (inherits(record_data, "data.frame")) {
+    return(air_insert_data_frame(base, table_name, record_data))
+  }
+  record_data <- air_prepare_record(as.list(record_data))
   fields <- list(fields = record_data)
   records <- list(records = list(fields))
-  json_record_data <- jsonlite::toJSON(records, pretty = F)
+  json_record_data <- jsonlite::toJSON(records, pretty = T)
+  return(json_record_data)
+}
+
+
+air_make_request <- function(base, table_name, json_record_data){
 
   request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
   request_url <- utils::URLencode(request_url)
 
-  # call service:
-  res <- httr::POST(
-    request_url,
-    httr::add_headers(
-      Authorization = paste("Bearer", air_api_key()),
-      `Content-type` = "application/json"
-    ),
-    body = json_record_data
-  )
+  res <- httr::POST(url = request_url,
+                    httr::add_headers(
+                      Authorization = paste("Bearer",air_api_key()),
+                      'Content-type' = "application/json"),
+                    body = json_record_data)
 
-  air_validate(res)  # throws exception (stop) if error
-  air_parse(res)     # returns R object
+  air_validate(res) # throws exception (stop) if error
+  air_parse(res) # returns R object
 }
 
+#' @param base String. Airtable base
+#' @param table_name String. Table name
+#' @param records Dataframe. Contains records you would like to insert
+#'
+#' @rdname air_insert
+#' @export air_insert_data_frame
 air_insert_data_frame <- function(base, table_name, records) {
   lapply(seq_len(nrow(records)), function(i) {
-    record_data <-
-      as.list(records[i,])
-    air_insert(base = base, table_name = table_name, record_data = record_data)
+    record_data <- as.list(records[i,])
+    json_record_data <- air_make_json(base, table_name, record_data)
+    air_make_request(base = base,table_name = table_name ,json_record_data = json_record_data )
+
   })
 }
 
