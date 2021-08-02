@@ -15,5 +15,8 @@ Imports:
     glue,
     dplyr,
     httr,
-    jsonlite
+    jsonlite,
+    readxl,
+    curl,
+    purrr
 RoxygenNote: 7.1.1
