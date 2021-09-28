@@ -330,9 +330,7 @@ air_make_json <- function (base, table_name, record_data){
 }
 
 
-air_make_request <- function(base, table_name, json_record_data, method = c("POST","PATCH")){
-
-
+air_make_request <- function(base, table_name, json_record_data, record_id = NULL, method = c("POST","PATCH")){
 
   if(method == "POST"){
 
@@ -372,19 +370,19 @@ air_insert_data_frame <- function(base, table_name, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])
     json_record_data <- air_make_json(base, table_name, record_data)
-    air_make_request(base = base,table_name = table_name ,json_record_data = json_record_data )
+    air_make_request(base = base,table_name = table_name ,json_record_data = json_record_data, method = "POST" )
 
   })
 }
 
 air_update_data_frame <- function(base, table_name, record_ids, records) {
   lapply(seq_len(nrow(records)), function(i) {
-    record_data <-
-      unlist(as.list(records[i,]), recursive = FALSE)
-    air_update(base = base,
-               table_name = table_name,
-               record_id = ifelse(is.null(record_ids), record_data$id, record_ids[i]),
-               record_data = record_data)
+    record_data <- as.list(records[i,])
+    json_record_data <- air_make_json(base, table_name, record_data)
+    air_make_request(base = base,table_name = table_name,
+                     json_record_data = json_record_data,
+                     record_id = ifelse(is.null(record_ids), record_data$id, record_ids[i]),
+                     method = "PATCH")
   })
 }
 
@@ -469,7 +467,7 @@ air_update <- function(base, table_name, record_id, record_data) {
   json_record_data <- air_make_json(base, table_name, record_data)
 
   # call service:
-  air_make_request(base,table_name,json_record_data, method = "PATCH")
+  air_make_request(base,table_name,json_record_data,record_id = record_id, method = "PATCH")
 }
 
 #' Get airtable base object
