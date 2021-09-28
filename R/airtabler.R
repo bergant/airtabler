@@ -332,19 +332,24 @@ air_make_json <- function (base, table_name, record_data){
 
 air_make_request <- function(base, table_name, json_record_data, method = c("POST","PATCH")){
 
-  request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
-  request_url <- utils::URLencode(request_url)
+
 
   if(method == "POST"){
 
-  res <- httr::POST(url = request_url,
-                    httr::add_headers(
-                      Authorization = paste("Bearer",air_api_key()),
-                      'Content-type' = "application/json"),
-                    body = json_record_data)
+    request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
+    request_url <- utils::URLencode(request_url)
+
+    res <- httr::POST(url = request_url,
+                      httr::add_headers(
+                        Authorization = paste("Bearer",air_api_key()),
+                        'Content-type' = "application/json"),
+                      body = json_record_data)
   }
 
   if(method == "PATCH"){
+
+    request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
+    request_url <- utils::URLencode(request_url)
 
     res <- httr::PATCH(url = request_url,
                       httr::add_headers(
