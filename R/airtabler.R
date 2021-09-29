@@ -373,9 +373,9 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
     request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
     request_url <- utils::URLencode(request_url)
 
-    print(request_url)
+    #print(request_url)
 
-    browser()
+    # browser()
 
     res <- httr::PATCH(url = request_url,
                       httr::add_headers(
@@ -493,7 +493,7 @@ air_update <- function(base, table_name, record_id, record_data) {
   method <- "PATCH"
 
   if(inherits(record_data, "data.frame")) {
-    print("using data.frame method")
+    #print("using data.frame method")
     return(air_update_data_frame(base, table_name, record_id, record_data))
   }
 
