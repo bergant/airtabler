@@ -318,12 +318,33 @@ air_insert <- function(base, table_name, record_data) {
 }
 
 
-air_make_json <- function (base, table_name, record_data){
+air_make_json <- function (base, table_name, record_data, record_id = NULL, method = NULL,typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
     return(air_insert_data_frame(base, table_name, record_data))
   }
+
+  #browser()
   record_data <- air_prepare_record(as.list(record_data))
   fields <- list(fields = record_data)
+
+  if(typecast){
+    # allows us to use values not currently specified in the
+    # table or record eg issues = "some new issue"
+    # use unbox to create singleton values instead of json objects
+    fields$typecast <- jsonlite::unbox(typecast)
+  }
+
+  if(method == "PATCH"){
+    ## the patch method already specifies a record so we
+    ## can remove a lot of addition json elements
+
+    ## drop the id field as it can't be updated
+    fields$fields$id <- NULL
+
+    json_patch_data <- jsonlite::toJSON(fields, pretty = T)
+    return(json_patch_data)
+  }
+
   records <- list(records = list(fields))
   json_record_data <- jsonlite::toJSON(records, pretty = T)
   return(json_record_data)
@@ -346,8 +367,15 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
 
   if(method == "PATCH"){
 
+    ### Because the patch request url specifies the record,
+    ### the json does not need to be as complete
+
     request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
     request_url <- utils::URLencode(request_url)
+
+    print(request_url)
+
+    browser()
 
     res <- httr::PATCH(url = request_url,
                       httr::add_headers(
@@ -378,10 +406,13 @@ air_insert_data_frame <- function(base, table_name, records) {
 air_update_data_frame <- function(base, table_name, record_ids, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])
-    json_record_data <- air_make_json(base, table_name, record_data)
+    record_id <- ifelse(is.null(record_ids), record_data$id, record_ids[i])
+    json_record_data <- air_make_json(base, table_name, record_data,
+                                      record_id = record_id,method = "PATCH")
+
     air_make_request(base = base,table_name = table_name,
                      json_record_data = json_record_data,
-                     record_id = ifelse(is.null(record_ids), record_data$id, record_ids[i]),
+                     record_id = record_id,
                      method = "PATCH")
   })
 }
@@ -459,15 +490,19 @@ air_delete_vec <- Vectorize(air_delete, vectorize.args = "record_id", SIMPLIFY =
 #' @export
 air_update <- function(base, table_name, record_id, record_data) {
 
+  method <- "PATCH"
+
   if(inherits(record_data, "data.frame")) {
+    print("using data.frame method")
     return(air_update_data_frame(base, table_name, record_id, record_data))
   }
 
   #create json records
-  json_record_data <- air_make_json(base, table_name, record_data)
+  json_record_data <- air_make_json(base, table_name, record_data,
+                                    record_id = record_id, method = method)
 
   # call service:
-  air_make_request(base,table_name,json_record_data,record_id = record_id, method = "PATCH")
+  air_make_request(base,table_name,json_record_data,record_id = record_id, method = method)
 }
 
 #' Get airtable base object
