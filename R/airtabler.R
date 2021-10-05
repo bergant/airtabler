@@ -351,7 +351,21 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
 }
 
 
-air_make_request <- function(base, table_name, json_record_data, record_id = NULL, method = c("POST","PATCH")){
+#' Make an HTTP request
+#'
+#' Properly encodes HTTP requests
+#'
+#' @param base
+#' @param table_name
+#' @param json_record_data
+#' @param record_id
+#' @param method
+#'
+#' @return
+#' @export
+#'
+#' @examples
+air_make_request <- function(base, table_name, json_record_data, record_id = NULL, method = c("POST","PATCH","DELETE")){
 
   if(method == "POST"){
 
@@ -382,6 +396,26 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
                         Authorization = paste("Bearer",air_api_key()),
                         'Content-type' = "application/json"),
                       body = json_record_data)
+  }
+
+  if(method == "DELETE"){
+
+    ### Because the patch request url specifies the record,
+    ### the json does not need to be as complete
+
+    request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
+    request_url <- utils::URLencode(request_url)
+
+    # call service:
+    res <- httr::DELETE(
+      request_url,
+      httr::add_headers(
+        Authorization = paste("Bearer", air_api_key())
+      )
+    )
+
+    air_validate(res)  # throws exception (stop) if error
+    air_parse(res)     # returns R object
   }
 
   air_validate(res) # throws exception (stop) if error
@@ -458,18 +492,11 @@ air_delete <- function(base, table_name, record_id) {
     return(air_delete_vec(base, table_name, record_id))
   }
 
-  request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
+  air_make_request(base = base,
+                   table_name = table_name,
+                   record_id = record_id,
+                   method = "DELETE")
 
-  # call service:
-  res <- httr::DELETE(
-    request_url,
-    httr::add_headers(
-      Authorization = paste("Bearer", air_api_key())
-    )
-  )
-
-  air_validate(res)  # throws exception (stop) if error
-  air_parse(res)     # returns R object
 }
 
 air_delete_vec <- Vectorize(air_delete, vectorize.args = "record_id", SIMPLIFY = FALSE)
