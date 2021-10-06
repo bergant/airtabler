@@ -330,11 +330,11 @@ air_insert <- function(base, table_name, record_data) {
 #' @param typecast Logical. Should the typecast option be TRUE or FALSE? Typecast
 #' allows you to add new options to select type fields.
 #'
-#' @return
+#' @return JSON with record data
 #' @export
 #'
 #' @examples
-air_make_json <- function (base, table_name, record_data, record_id = NULL, method = NULL,typecast = TRUE){
+air_make_json <- function (base, table_name, record_data, record_id = NULL, method = "POST",typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
     return(air_insert_data_frame(base, table_name, record_data))
   }
@@ -377,7 +377,7 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
 #' @param record_id String or vector of strings. Record id
 #' @param method String. One of "POST", "PATCH", or "DELETE"
 #'
-#' @return
+#' @return Status of HTTP request
 #' @export
 #'
 #' @examples
@@ -429,9 +429,6 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
         Authorization = paste("Bearer", air_api_key())
       )
     )
-
-    air_validate(res)  # throws exception (stop) if error
-    air_parse(res)     # returns R object
   }
 
   air_validate(res) # throws exception (stop) if error
