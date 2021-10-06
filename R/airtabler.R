@@ -318,6 +318,22 @@ air_insert <- function(base, table_name, record_data) {
 }
 
 
+#' Make JSON for API
+#'
+#' Make JSON that is compatible with the Airtable API.
+#'
+#' @param base String. Base in airtable
+#' @param table_name  String. Table in airtable
+#' @param record_data Dataframe, list, or vector. Data to be converted to JSON
+#' @param record_id String or vector of strings. Records to be manipulated
+#' @param method String. "PATCH" is necessary for \code{air_update}
+#' @param typecast Logical. Should the typecast option be TRUE or FALSE? Typecast
+#' allows you to add new options to select type fields.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 air_make_json <- function (base, table_name, record_data, record_id = NULL, method = NULL,typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
     return(air_insert_data_frame(base, table_name, record_data))
@@ -355,11 +371,11 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
 #'
 #' Properly encodes HTTP requests
 #'
-#' @param base
-#' @param table_name
-#' @param json_record_data
-#' @param record_id
-#' @param method
+#' @param base String. Base in airtable
+#' @param table_name String. Table in airtable
+#' @param json_record_data json or string. JSON formatted text with record data
+#' @param record_id String or vector of strings. Record id
+#' @param method String. One of "POST", "PATCH", or "DELETE"
 #'
 #' @return
 #' @export
