@@ -336,19 +336,13 @@ air_insert <- function(base, table_name, record_data) {
 #' @examples
 air_make_json <- function (base, table_name, record_data, record_id = NULL, method = "POST",typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
-    return(air_insert_data_frame(base, table_name, record_data))
+    return(air_insert_data_frame(base, table_name, record_data, typecast))
   }
 
   #browser()
   record_data <- air_prepare_record(as.list(record_data))
   fields <- list(fields = record_data)
 
-  if(typecast){
-    # allows us to use values not currently specified in the
-    # table or record eg issues = "some new issue"
-    # use unbox to create singleton values instead of json objects
-    fields$typecast <- jsonlite::unbox(typecast)
-  }
 
   if(method == "PATCH"){
     ## the patch method already specifies a record so we
@@ -357,11 +351,27 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
     ## drop the id field as it can't be updated
     fields$fields$id <- NULL
 
+    if(typecast){
+      # allows us to use values not currently specified in the
+      # table or record eg issues = "some new issue"
+      # use unbox to create singleton values instead of json objects
+      fields$typecast <- jsonlite::unbox(typecast)
+    }
+
+
     json_patch_data <- jsonlite::toJSON(fields, pretty = T)
     return(json_patch_data)
   }
 
   records <- list(records = list(fields))
+
+  if(typecast){
+    # allows us to use values not currently specified in the
+    # table or record eg issues = "some new issue"
+    # use unbox to create singleton values instead of json objects
+    records$typecast <- jsonlite::unbox(typecast)
+  }
+
   json_record_data <- jsonlite::toJSON(records, pretty = T)
   return(json_record_data)
 }
@@ -441,15 +451,27 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
 #'
 #' @rdname air_insert
 #' @export air_insert_data_frame
-air_insert_data_frame <- function(base, table_name, records) {
+air_insert_data_frame <- function(base, table_name, records,typecast) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])
-    json_record_data <- air_make_json(base, table_name, record_data)
+    json_record_data <- air_make_json(base, table_name, record_data,typecast)
     air_make_request(base = base,table_name = table_name ,json_record_data = json_record_data, method = "POST" )
 
   })
 }
 
+#' Update records from a dataframe
+#'
+#'
+#' @param base String. Airtable base
+#' @param table_name String. Table name
+#' @param record_ids Vector of strings. Records to be modified
+#' @param records Dataframe. Values to update
+#'
+#' @return
+#' @export
+#'
+#' @examples
 air_update_data_frame <- function(base, table_name, record_ids, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])
