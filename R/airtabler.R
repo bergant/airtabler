@@ -448,6 +448,7 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
 #' @param base String. Airtable base
 #' @param table_name String. Table name
 #' @param records Dataframe. Contains records you would like to insert
+#' @param typecast Logical. Should airtable make new values for select type fields?
 #'
 #' @rdname air_insert
 #' @export air_insert_data_frame
@@ -462,6 +463,7 @@ air_insert_data_frame <- function(base, table_name, records,typecast) {
 
 #' Update records from a dataframe
 #'
+#' Updates the values in a table by overwriting their current contents.
 #'
 #' @param base String. Airtable base
 #' @param table_name String. Table name

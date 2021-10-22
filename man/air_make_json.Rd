@@ -9,7 +9,7 @@ air_make_json(
   table_name,
   record_data,
   record_id = NULL,
-  method = NULL,
+  method = "POST",
   typecast = TRUE
 )
 }

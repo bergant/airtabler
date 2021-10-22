@@ -8,7 +8,7 @@
 \usage{
 air_insert(base, table_name, record_data)
 
-air_insert_data_frame(base, table_name, records)
+air_insert_data_frame(base, table_name, records, typecast)
 
 multiple(x)
 }
@@ -21,6 +21,8 @@ multiple(x)
 of the field values}
 
 \item{records}{Dataframe. Contains records you would like to insert}
+
+\item{typecast}{Logical. Should airtable make new values for select type fields?}
 
 \item{x}{Object to be marked as a multiple value field}
 }

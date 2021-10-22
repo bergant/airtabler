@@ -18,5 +18,6 @@ Imports:
     jsonlite,
     readxl,
     curl,
-    purrr
+    purrr,
+    utils
 RoxygenNote: 7.1.1

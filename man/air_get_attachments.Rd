@@ -8,6 +8,8 @@ air_get_attachments(
   base,
   table_name,
   field,
+  download_file = FALSE,
+  dir_name = "downloads",
   extract_type = "excel",
   extract_field = "excel_extract",
   ...
@@ -19,6 +21,11 @@ air_get_attachments(
 \item{table_name}{String. Name of the table to be fetched from the base}
 
 \item{field}{String. Name of field with file attachments in base}
+
+\item{download_file}{Logical. Should files be downloaded?}
+
+\item{dir_name}{String. Where should files be downloaded to?
+Will create the folder if it does not exist.}
 
 \item{extract_type}{String. File type to be extracted.
 Should be one of: excel}
