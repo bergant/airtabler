@@ -9,13 +9,15 @@
 #' Should be one of: excel
 #' @param extract_field String. Name of extract field that will be created
 #' @param ... Additional arguments to pass to \code{air_get}
-#'
+#' @param download_file Logical. Should files be downloaded?
+#' @param dir_name String. Where should files be downloaded to?
+#' Will create the folder if it does not exist.
 #'
 #' @return named list of data frames
 #' @export air_get_attachments
 #'
 #' @examples
-air_get_attachments <- function(base, table_name, field, extract_type ="excel", extract_field ="excel_extract", ...){
+air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", ...){
   #browser()
   # get data
   x <- fetch_all(base,table_name,...)
@@ -26,6 +28,29 @@ air_get_attachments <- function(base, table_name, field, extract_type ="excel", 
   xfield <- purrr::pluck(x,field)
 
   ### get files ----
+
+  if(download_file){
+    dir.create(dir_name)
+
+    xlist <- purrr::map(xfield, function(x){
+
+      if(is.null(x$url)){
+        ID <- x$id
+        warning(sprintf("Record ID %s is null",ID))
+        return(NULL)
+      }
+
+      destfile <- sprintf("%s/%s",dir_name ,basename(x$url))
+
+     download.file(url = x$url,destfile = destfile)
+    })
+
+    message("downloaded files in ./downloads")
+
+  }
+
+  ### extract excel ----
+
   if(extract_type == "excel"){
 
   xlist <- purrr::map(xfield,function(x){
