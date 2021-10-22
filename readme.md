@@ -7,7 +7,7 @@ Provides access to the [Airtable API](http://airtable.com/api)
 
 
 ```r
-devtools::install_github("bergant/airtabler")
+devtools::install_github("ecohealthalliance/airtabler")
 ```
 
 ## Setup
