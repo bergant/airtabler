@@ -40,9 +40,9 @@ air_get_attachments <- function(base, table_name, field, download_file = FALSE, 
         return(NULL)
       }
 
-      destfile <- sprintf("%s/%s",dir_name ,basename(x$url))
+      dest <- sprintf("%s/%s", dir_name,x$filename)
 
-     utils::download.file(url = x$url,destfile = destfile)
+     utils::download.file(url = x$url,destfile = dest)
     })
 
     message("downloaded files in ./downloads")
