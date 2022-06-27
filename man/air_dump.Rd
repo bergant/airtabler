@@ -31,7 +31,7 @@ with the name of the output_id will be used.}
 \item{output_id}{String. ID used to uniquely identify outputs. A folder with
 this name will be created in output_dir.}
 
-\item{output_format}{String. Default is csv. Options include: To be added}
+\item{output_format}{String. Default is csv. Options include: csv}
 
 \item{to_frictionless_data}{Logical. Requires table_name_metadata and table_name_description.
 Should data be output as a frictionless data package. (To be Added)}

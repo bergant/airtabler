@@ -53,11 +53,11 @@ air_dump <- function(base = Sys.getenv("airtable_metadata_base"),
 
   # write structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name_metadata)
-  smf_file_path  <- sprintf("%s/%s.csv",output_dir_path,snakecase::to_lower_camel_case(table_name_metadata))
+  smf_file_path  <- sprintf("%s/%s.csv",output_dir_path,snakecase::to_snake_case(table_name_metadata))
   utils::write.csv(str_metadata,smf_file_path,row.names = FALSE)
 
   base_table_names <- unique(str_metadata$`Table Name`)
-  base_table_names_formatted <-  snakecase::to_lower_camel_case(base_table_names)
+  base_table_names_formatted <-  snakecase::to_snake_case(base_table_names)
   purrr::map2(base_table_names,base_table_names_formatted, function(x,y){
     #browser()
     ## get fields from str_metadata
@@ -94,7 +94,7 @@ air_dump <- function(base = Sys.getenv("airtable_metadata_base"),
 
      ## clean up field names
 
-    names(x_table)  <- snakecase::to_lower_camel_case(names(x_table))
+    names(x_table)  <- snakecase::to_snake_case(names(x_table))
 
     # convert list type fields to strings
 
