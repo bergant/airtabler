@@ -2,6 +2,7 @@
 
 S3method(print,airtable.base)
 export(air_delete)
+export(air_dump)
 export(air_get)
 export(air_get_attachments)
 export(air_get_schema)

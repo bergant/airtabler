@@ -19,5 +19,7 @@ Imports:
     readxl,
     curl,
     purrr,
-    utils
-RoxygenNote: 7.1.1
+    utils,
+    snakecase,
+    tidyselect
+RoxygenNote: 7.2.0
