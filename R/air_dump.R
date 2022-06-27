@@ -54,6 +54,7 @@ air_dump <- function(base = Sys.getenv("airtable_metadata_base"),
   # write structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name_metadata)
   smf_file_path  <- sprintf("%s/%s.csv",output_dir_path,snakecase::to_snake_case(table_name_metadata))
+  # names(str_metadata)  <- snakecase::to_lower_camel_case(names(str_metadata))
   utils::write.csv(str_metadata,smf_file_path,row.names = FALSE)
 
   base_table_names <- unique(str_metadata$`Table Name`)
@@ -111,7 +112,7 @@ air_dump <- function(base = Sys.getenv("airtable_metadata_base"),
   ## copy files from temp to final
 
   output_dir_path_final <- sprintf("%s/%s",output_dir,output_id)
-  dir.create(output_dir_path_final)
+  dir.create(output_dir_path_final,recursive = T)
 
   outputs_list <- list.files(output_dir_path,full.names = T)
 
