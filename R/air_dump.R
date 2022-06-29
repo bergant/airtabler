@@ -2,6 +2,8 @@
 #'
 #' This function uses metadata tables in your base to extract all
 #' base table to a different file format. Currently only CSV is supported.
+#' For information about creating metadata tables in your base see the
+#' \href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
 #'
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param table_name_metadata String. Name of structural metadata table. PROVIDE LINK TO DEF OF STRUCTURAL METADATA
@@ -161,3 +163,4 @@ set_diff <- function(x,y){
   diff <- u[!(j)]
   return(diff)
 }
+
