@@ -1,5 +1,6 @@
-#' Get base schema
+#' Get base schema - enterprise only
 #'
+#' Metadata API currently only available via enterprise accounts.
 #' Get the schema for the tables in a base.
 #'
 #' @section Using Metadata API:
