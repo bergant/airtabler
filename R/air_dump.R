@@ -320,7 +320,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 #'
 flatten_col_to_chr <- function(data_frame){
   for(i in names(data_frame)){
-    browser()
+    #browser()
     # get column values
     col_from_df <- data_frame[[i]]
 
@@ -328,6 +328,7 @@ flatten_col_to_chr <- function(data_frame){
       ## create an object to hold character values
       chr_col <- as.character()
       if(is.data.frame(col_from_df)){
+
         n_r <- nrow(col_from_df)
 
         for(j in 1:n_r){
