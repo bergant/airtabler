@@ -192,6 +192,7 @@ air_generate_base_description <- function(title = NA,primary_contact= NA,email =
 air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE){
 
   names(metadata) <- snakecase::to_snake_case(names(metadata))
+
   ## check for required fields
   required_fields <- c("table_name","field_name")
 
@@ -204,11 +205,10 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 
 
   base_table_names <- unique(metadata$table_name)
-
   table_list <- base_table_names |>
     purrr::set_names() |>
     purrr::map(function(x){
-      #browser()
+
       ## get fields from str_metadata
 
       fields_exp <- metadata[metadata$table_name == x,"field_name"]
@@ -225,12 +225,18 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 
       # check if any discrepancy between metadata and table
       fields_diff <- set_diff(fields_exp,fields_obs)
-
+      #browser()
       if(!is.null(fields_diff)){
         # check for fields in obs not in exp - error
         obs_exp  <- setdiff(fields_obs,fields_exp)
-        if(length(obs_exp) != 0 & !all(obs_exp %in% c("id","createdTime"))){
-          stop(glue::glue("Table {x} contains field(s) {obs_exp} not found in {table_name_metadata}. Update metadata table."))
+        ignore_fields <- c("id","createdTime")
+        ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
+        if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
+          missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
+          missing_fields_glue <- paste(missing_fields, collapse = ", ")
+          stop(glue::glue('The metadata table is missing the following fields from table {x}:
+                          {missing_fields_glue}
+                          Please update the metadata table.https://airtable.com/{base}'))
         }
         # check for fields in exp and not in obs - append unless frictionless
         if(add_missing_fields){
