@@ -2,46 +2,24 @@
 % Please edit documentation in R/air_dump.R
 \name{air_dump}
 \alias{air_dump}
-\title{Output tables to a specified file format}
+\title{Dump all tables from a base into R}
 \usage{
-air_dump(
-  base = Sys.getenv("airtable_metadata_base"),
-  table_name_metadata = "meta data",
-  table_name_description = "description",
-  all_table_names = NULL,
-  output_dir = "outputs",
-  output_id = rlang::hash(Sys.time()),
-  output_format = "csv",
-  to_frictionless_data = FALSE
-)
+air_dump(base, metadata, description = NULL, add_missing_fields = TRUE)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
 
-\item{table_name_metadata}{String. Name of structural metadata table. PROVIDE LINK TO DEF OF STRUCTURAL METADATA}
+\item{metadata}{Data.frame.Data frame with structural metadata - describes relationship between tables and fields.}
 
-\item{table_name_description}{String. Name of the descriptive metadata table. PROVIDE LINK TO DEF OF DESCRIPTIVE METADATA}
+\item{description}{Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
+Can be left as NULL if base already contains a table called description.}
 
-\item{all_table_names}{Vector. Do not use if providing table_name_metadata.
-A character vector of all table names in your base. I.e c("table 1","table 2").}
-
-\item{output_dir}{String. Folder containing outputs. If not specified, a folder
-with the name of the output_id will be used.}
-
-\item{output_id}{String. ID used to uniquely identify outputs. A folder with
-this name will be created in output_dir.}
-
-\item{output_format}{String. Default is csv. Options include: csv}
-
-\item{to_frictionless_data}{Logical. Requires table_name_metadata and table_name_description.
-Should data be output as a frictionless data package. (To be Added)}
+\item{add_missing_fields}{Logical. Should fields described in the metadata data.frame be added to corresponding tables?}
 }
 \value{
-List of file paths created.
+List of data.frames. All tables from metadata plus the
+description and metadata tables.
 }
 \description{
-This function uses metadata tables in your base to extract all
-base table to a different file format. Currently only CSV is supported.
-For information about creating metadata tables in your base see the
-\href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
+Dump all tables from a base into R
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/air_get_schema.R
 \name{air_get_schema}
 \alias{air_get_schema}
-\title{Get base schema}
+\title{Get base schema - enterprise only}
 \usage{
 air_get_schema(base, ...)
 }
@@ -15,6 +15,7 @@ air_get_schema(base, ...)
 list of schema
 }
 \description{
+Metadata API currently only available via enterprise accounts.
 Get the schema for the tables in a base.
 }
 \section{Using Metadata API}{

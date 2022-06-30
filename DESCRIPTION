@@ -1,7 +1,7 @@
 Package: airtabler
 Type: Package
 Title: Interface to the Airtable API
-Version: 0.1.6
+Version: 0.1.7
 Date: 2017-09-17
 Author: Darko Bergant
 Maintainer: Darko Bergant <darko.bergant@gmail.com>
@@ -21,5 +21,6 @@ Imports:
     purrr,
     utils,
     snakecase,
-    tidyselect
+    tidyselect,
+    rlang
 RoxygenNote: 7.2.0
