@@ -42,4 +42,6 @@ List of file paths created.
 \description{
 This function uses metadata tables in your base to extract all
 base table to a different file format. Currently only CSV is supported.
+For information about creating metadata tables in your base see the
+\href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
 }
