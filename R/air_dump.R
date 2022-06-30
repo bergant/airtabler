@@ -205,10 +205,11 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 
 
   base_table_names <- unique(metadata$table_name)
+
+  print(base_table_names)
   table_list <- base_table_names |>
     purrr::set_names() |>
     purrr::map(function(x){
-
       ## get fields from str_metadata
 
       fields_exp <- metadata[metadata$table_name == x,"field_name"]
@@ -251,6 +252,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 
   table_list$metadata <- metadata
 
+  #browser()
   # check for description table
   named_description <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
 
@@ -275,7 +277,9 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
     }
   }
 
-  table_list[named_description][[1]]$created <- Sys.Date()
+  named_description_post <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
+
+  table_list[named_description_post][[1]]$created <- Sys.Date()
 
   return(table_list)
 }
@@ -306,7 +310,8 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 #' list("Hola","Bonjour","Merhaba")
 #' )),
 #' b = 1:4,
-#' c = letters[1:4]
+#' c = letters[1:4],
+#' d = I(data.frame(id = 132, name = "bob", email = "bob@@example.com"))
 #' )
 #'
 #' test_df <- flatten_col_to_chr(data_frame)
@@ -315,21 +320,41 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 #'
 flatten_col_to_chr <- function(data_frame){
   for(i in names(data_frame)){
+    browser()
     # get column values
     col_from_df <- data_frame[[i]]
 
     if(is.list(col_from_df)){
       ## create an object to hold character values
       chr_col <- as.character()
-      for(j in 1:length(col_from_df)){
-        list_element<- col_from_df[[j]]
-        if(is.null(list_element)){
-          list_element <- ""
-        }
-        row_value<- sprintf('"%s"',paste(list_element,collapse = ","))
+      if(is.data.frame(col_from_df)){
+        n_r <- nrow(col_from_df)
 
-        chr_col <- append(chr_col,row_value)
+        for(j in 1:n_r){
+          list_element<- col_from_df[j,]
+          if(is.null(list_element)){
+            list_element <- ""
+          }
+          row_value<- sprintf('"%s"',paste(list_element,collapse = ","))
+
+          chr_col <- append(chr_col,row_value)
+        }
+
+      } else {
+        n <- length(col_from_df)
+
+        for(j in 1:n){
+          list_element<- col_from_df[[j]]
+          if(is.null(list_element)){
+            list_element <- ""
+          }
+          row_value<- sprintf('"%s"',paste(list_element,collapse = ","))
+
+          chr_col <- append(chr_col,row_value)
+        }
+
       }
+
       data_frame[i] <- chr_col
     }
   }
@@ -356,9 +381,11 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
   # check if data already exist
 
   if(dir.exists(output_dir_path) & !overwrite){
-    message("data already exist, files not written")
+    message("data already exist, files not written. Set overwrite
+            to TRUE ")
     return(list.files(output_dir_path))
   }
+  ### consider using temp dir then copying once finished processing
 
   dir.create(output_dir_path,recursive = TRUE)
 
@@ -367,7 +394,6 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
     y_table_name <- snakecase::to_snake_case(y_table_name)
     ## clean up field names in table
     names(x_table)  <- snakecase::to_snake_case(names(x_table))
-
 
     ## clean up field names
     names(x_table)  <- snakecase::to_snake_case(names(x_table))
