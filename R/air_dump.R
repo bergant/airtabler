@@ -311,7 +311,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 #' )),
 #' b = 1:4,
 #' c = letters[1:4],
-#' d = I(data.frame(id = 132, name = "bob", email = "bob@@example.com"))
+#' d = I(data.frame(id = 1:4, name = "bob", email = "bob@@example.com"))
 #' )
 #'
 #' test_df <- flatten_col_to_chr(data_frame)
@@ -377,15 +377,21 @@ flatten_col_to_chr <- function(data_frame){
 #' @export
 air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE){
 
+  # create a unique id for the data
   output_id <- rlang::hash(table_list)
-  output_dir_path <- sprintf("%s/%s",output_dir,output_id)
-  # check if data already exist
 
-  if(dir.exists(output_dir_path) & !overwrite){
+  # check if data already exist
+  output_dir_path_final  <- sprintf("%s/%s",output_dir,output_id)
+  if(dir.exists(output_dir_path_final) & !overwrite){
     message("data already exist, files not written. Set overwrite
             to TRUE ")
-    return(list.files(output_dir_path))
+    return(list.files(output_dir_path_final,full.names = TRUE))
   }
+
+  # create temp dir
+  temp_path <- tempdir()
+  output_dir_path <- sprintf("%s/%s",temp_path,output_id)
+
   ### consider using temp dir then copying once finished processing
 
   dir.create(output_dir_path,recursive = TRUE)
@@ -407,6 +413,15 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 
     utils::write.csv(x_table_flat,output_file_path,row.names = FALSE)
   })
+
+  ## copy from temp to final
+  dir.create(output_dir_path_final,recursive = TRUE)
+  outputs_list <- list.files(output_dir_path,full.names = T)
+
+  file.copy(from = outputs_list,to = output_dir_path_final,recursive = FALSE ,copy.mode = TRUE)
+
+  invisible(table_list)
+
 }
 
 ### write to db

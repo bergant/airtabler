@@ -31,7 +31,8 @@ NULL,
 list("Hola","Bonjour","Merhaba")
 )),
 b = 1:4,
-c = letters[1:4]
+c = letters[1:4],
+d = I(data.frame(id = 1:4, name = "bob", email = "bob@example.com"))
 )
 
 test_df <- flatten_col_to_chr(data_frame)
