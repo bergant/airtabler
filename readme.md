@@ -1,4 +1,9 @@
-# airtabler
+---
+title: "airtabler"
+output: 
+  html_document: 
+    keep_md: yes
+---
 Provides access to the [Airtable API](http://airtable.com/api)
 
 
@@ -20,10 +25,19 @@ Generate the airtable API key from your [Airtable account](http://airtable.com/a
 
 __airtabler__ functions will read the API key from
   environment variable `AIRTABLE_API_KEY`. To start R session with the
-  initialized environvent variable create an `.Renviron` file in your home directory
-  with a line like this:
+  initialized environvent variable create an `.Renviron` file in your home directory.
   
-`AIRTABLE_API_KEY=your_api_key_here`
+```r
+usethis::edit_r_environ
+```
+
+In .Renviron add the following:
+```
+AIRTABLE_API_KEY=your_api_key_here
+
+```
+
+**NOTE: Be sure the last line of your .Renviron file is an empty return line**
 
 To check where your home is, type `path.expand("~")` in your R console.
 
@@ -55,18 +69,6 @@ hotels <-
 knitr::kable(hotels[, c("id","Name", "Stars", "Price/night")], format = "markdown")
 ```
 
-
-
-|id                |Name                                                         |Stars | Price/night|
-|:-----------------|:------------------------------------------------------------|:-----|-----------:|
-|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)      |****  |         176|
-|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)                 |***** |         146|
-|recgKO7K15YyWEsdb |Radisson Blu Hotel Marseille Vieux Port (Marseilles, France) |****  |         170|
-|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                               |***   |         136|
-|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                      |***** |         136|
-|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |         278|
-|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |         156|
-
 Filter records with formula (see [formula field reference ](https://support.airtable.com/hc/en-us/articles/203255215-Formula-Field-Reference)).
 
 
@@ -76,17 +78,6 @@ hotels <-
 
 knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 ```
-
-
-
-|id                |Name                                                     |Stars | Avg Review| Price/night|
-|:-----------------|:--------------------------------------------------------|:-----|----------:|-----------:|
-|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)  |****  |        8.8|         176|
-|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)             |***** |        9.0|         146|
-|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                           |***   |        9.2|         136|
-|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                  |***** |        8.8|         136|
-|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico) |***** |        9.1|         278|
-|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                          |***** |        9.0|         156|
 
 Sort data with sort parameter:
 
@@ -101,18 +92,6 @@ hotels <-
 knitr::kable(hotels[, c("id","Name", "Stars", "Avg Review", "Price/night")], format = "markdown")
 ```
 
-
-
-|id                |Name                                                         |Stars | Avg Review| Price/night|
-|:-----------------|:------------------------------------------------------------|:-----|----------:|-----------:|
-|recjJJ4TX38sUwzfj |Hotel Berg (Keflavík, Iceland)                               |***   |        9.2|         136|
-|reckPH6G384y3suac |Grand Residences Riviera Cancun (Puerto Morelos, Mexico)     |***** |        9.1|         278|
-|receHGZJ22WyUxocl |Urikana Boutique Hotel (Teresopolis, Brazil)                 |***** |        9.0|         146|
-|reclG7Bd2g5Dtiw4J |Grand Budapest Hotel (Zubrowka)                              |***** |        9.0|         156|
-|recjUU2GT28yVvw7l |Sheraton Nha Trang (Nha Trang, Vietnam)                      |***** |        8.8|         136|
-|reccPOcMQaYt1tthb |Heritage Christchurch Hotel (Christchurch, New Zealand)      |****  |        8.8|         176|
-|recgKO7K15YyWEsdb |Radisson Blu Hotel Marseille Vieux Port (Marseilles, France) |****  |        8.2|         170|
-
 ### Using page size and offset
 
 Define page size with `pageSize`:
@@ -122,19 +101,11 @@ hotels <- TravelBucketList$Hotels$select(pageSize = 3)
 nrow(hotels)
 ```
 
-```
-## [1] 3
-```
-
 Continue at offset, returned by previous select:
 
 ```r
 hotels <- TravelBucketList$Hotels$select(offset = get_offset(hotels))
 nrow(hotels)
-```
-
-```
-## [1] 4
 ```
 
 
@@ -145,10 +116,6 @@ function will handle the offset and return the result as a single object.
 ```r
 hotels <- TravelBucketList$Hotels$select_all()
 nrow(hotels)
-```
-
-```
-## [1] 7
 ```
 
 
@@ -170,19 +137,6 @@ radisson <-
 str(radisson$fields, max.level = 1)
 ```
 
-```
-## List of 9
-##  $ Listing URL: chr "https://www.booking.com/hotel/fr/radisson-sas-marseille-vieux-port.html"
-##  $ Name       : chr "Radisson Blu Hotel Marseille Vieux Port (Marseilles, France)"
-##  $ Price/night: int 170
-##  $ Amenities  : chr [1:4] "Pool" "Gym" "Restaurant" "Wifi"
-##  $ Notes      : chr "Rooms with African or Provencál decor."
-##  $ Country    : chr "recmSV4PR9ZCWyrk8"
-##  $ Pictures   :'data.frame':	4 obs. of  6 variables:
-##  $ Stars      : chr "****"
-##  $ Avg Review : num 8.2
-```
-
 ### Insert a record
 Insert a new record with `insert` function (API returns all record data - including new record ID):
 
@@ -199,10 +153,6 @@ new_hotel <-
   TravelBucketList$Hotels$insert(record_data)
 
 cat("Inserted a record with ID=", new_hotel$id, sep = "")
-```
-
-```
-## Inserted a record with ID=recGtWMprUr7f2EvT
 ```
 
 
@@ -223,22 +173,10 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
     "New price: ", new_hotel$fields$`Price/night`, sep = "")
 ```
 
-```
-## Updated a record with ID=recGtWMprUr7f2EvT. New price: 120
-```
-
 ### Delete a record
 
 ```r
 TravelBucketList$Hotels$delete(new_hotel$id)
-```
-
-```
-## $deleted
-## [1] TRUE
-## 
-## $id
-## [1] "recGtWMprUr7f2EvT"
 ```
 
 
