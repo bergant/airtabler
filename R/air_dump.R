@@ -96,7 +96,7 @@ air_generate_metadata <- function(base, table_names,limit=1){
 
     ## guess record types?
 
-    md_df <- data.frame(table_name = x, field_name = fields_x, field_desc = "", field_type = "")
+    md_df <- data.frame( field_name = fields_x, table_name = x, field_desc = "", field_type = "")
 
     return(md_df)
   })
@@ -297,6 +297,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 #' not delimit cells. This conforms to RFC 4180 standard for CSVs.
 #' \url{https://datatracker.ietf.org/doc/html/rfc4180}
 #'
+#'
 #' @param data_frame a data frame, tibble or other data frame like object
 #'
 #' @return data_frame with list columns converted to character vectors.
@@ -362,6 +363,8 @@ flatten_col_to_chr <- function(data_frame){
   return(data_frame)
 }
 
+
+
 #' Save air_dump output to csv
 #'
 #' Saves data.frames from air_dump to csv files. File names are determined by
@@ -423,6 +426,88 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
   invisible(table_list)
 
 }
+
+
+### Get just the json to preserve the structure -- essentially modified air_get
+
+
+
+### extract_base - returns a named list
+
+#' Dump all tables from a base into json files
+#'
+#' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
+#' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
+#' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
+#' Can be left as NULL if base already contains a table called description.
+#'
+#' @return List of data.frames. All tables from metadata plus the
+#' description and metadata tables.
+#' @export
+#'
+air_dump_to_json <- function(base, metadata, description = NULL, add_missing_fields = TRUE){
+#
+#   names(metadata) <- snakecase::to_snake_case(names(metadata))
+#
+#   ## check for required fields
+#   required_fields <- c("table_name","field_name")
+#
+#   if(!all(required_fields %in% names(metadata))){
+#     stop(glue::glue("metadata table must contain the
+#                     following fields: {required_fields}. Note
+#                     that field names are converted to snakecase
+#                     before check."))
+#   }
+#
+#
+#   base_table_names <- unique(metadata$table_name)
+#
+#   print(base_table_names)
+#   table_list <- base_table_names |>
+#     purrr::set_names() |>
+#     purrr::map(function(x){
+#       ## get fields from str_metadata
+#
+#       fields_exp <- metadata[metadata$table_name == x,"field_name"]
+#
+#       ## pull table - add check for blank tables
+#       x_table <- airtabler::fetch_all(base,x)
+#
+#       if(!is.data.frame(x_table)){
+#         x_table <- data.frame(id = character())
+#       }
+#
+#       ## add in missing columns if any
+#       fields_obs <- names(x_table)
+#
+#       # check if any discrepancy between metadata and table
+#       fields_diff <- set_diff(fields_exp,fields_obs)
+#       #browser()
+#       if(!is.null(fields_diff)){
+#         # check for fields in obs not in exp - error
+#         obs_exp  <- setdiff(fields_obs,fields_exp)
+#         ignore_fields <- c("id","createdTime")
+#         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
+#         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
+#           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
+#           missing_fields_glue <- paste(missing_fields, collapse = ", ")
+#           stop(glue::glue('The metadata table is missing the following fields from table {x}:
+#                           {missing_fields_glue}
+#                           Please update the metadata table.https://airtable.com/{base}'))
+#         }
+#         # check for fields in exp and not in obs - append unless frictionless
+#         if(add_missing_fields){
+#           exp_obs <- setdiff(fields_exp,fields_obs)
+#           x_table[exp_obs] <- list(character(0))
+#         }
+#       }
+#
+#       return(x_table)
+#
+#     })
+}
+
+
 
 ### write to db
 
