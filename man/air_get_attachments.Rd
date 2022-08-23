@@ -12,6 +12,7 @@ air_get_attachments(
   dir_name = "downloads",
   extract_type = "excel",
   extract_field = "excel_extract",
+  skip = 0,
   ...
 )
 }
@@ -31,6 +32,8 @@ Will create the folder if it does not exist.}
 Should be one of: excel}
 
 \item{extract_field}{String. Name of extract field that will be created}
+
+\item{skip}{Numeric. How many lines should be skipped? See \code{read_excel} skip.}
 
 \item{...}{Additional arguments to pass to \code{air_get}}
 }

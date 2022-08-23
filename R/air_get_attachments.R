@@ -12,12 +12,13 @@
 #' @param download_file Logical. Should files be downloaded?
 #' @param dir_name String. Where should files be downloaded to?
 #' Will create the folder if it does not exist.
+#' @param skip Numeric. How many lines should be skipped? See \code{read_excel} skip.
 #'
 #' @return named list of data frames
 #' @export air_get_attachments
 #'
 #' @examples
-air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", ...){
+air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, ...){
   #browser()
   # get data
   x <- fetch_all(base,table_name,...)
@@ -59,7 +60,7 @@ air_get_attachments <- function(base, table_name, field, download_file = FALSE, 
       warning(sprintf("Record ID %s is null",ID))
       return(NULL)
     }
-    read_excel_url(x$url) ## need to be able to pass additional arguments
+    read_excel_url(x$url, skip = skip) ## need to be able to pass additional arguments
   })
 
   ## add extract to data frame ----
