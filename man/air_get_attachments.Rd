@@ -33,7 +33,7 @@ Should be one of: excel}
 
 \item{extract_field}{String. Name of extract field that will be created}
 
-\item{skip}{Numeric. How many lines should be skipped? See \code{read_excel} skip.}
+\item{skip}{Numeric. How many lines should be skipped? See \code{readxl::read_excel} skip.}
 
 \item{...}{Additional arguments to pass to \code{air_get}}
 }

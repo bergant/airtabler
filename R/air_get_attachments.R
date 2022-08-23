@@ -12,7 +12,7 @@
 #' @param download_file Logical. Should files be downloaded?
 #' @param dir_name String. Where should files be downloaded to?
 #' Will create the folder if it does not exist.
-#' @param skip Numeric. How many lines should be skipped? See \code{read_excel} skip.
+#' @param skip Numeric. How many lines should be skipped? See \code{readxl::read_excel} skip.
 #'
 #' @return named list of data frames
 #' @export air_get_attachments
