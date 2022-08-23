@@ -276,7 +276,11 @@ air_validate <- function(res) {
 }
 
 air_parse <- function(res) {
-  res_obj <- jsonlite::fromJSON(httr::content(res, as = "text"))
+  if(is.character(res)){
+    res_obj<- jsonlite::fromJSON(res)
+  } else {
+    res_obj <- jsonlite::fromJSON(httr::content(res, as = "text"))
+  }
   if(!is.null(res_obj$records)) {
     res <- res_obj$records
     if(!is.null(res_obj$offset)) {

@@ -70,21 +70,35 @@ air_get_json <- function(base, table_name,
 
 fetch_all_json <- function(base, table_name, ...) {
   out <- list()
-  out[[1]] <- airtabler::air_get_json(base, table_name, combined_result = FALSE,...)
+  out[[1]] <- air_get_json(base, table_name, combined_result = FALSE,...)
   if(length(out[[1]]) == 0){
     emptyTableMessage <- glue::glue("The queried view for {table_name} in {base} is empty")
     warning(emptyTableMessage)
     return(emptyTableMessage)
   } else {
-    offset <- airtabler::get_offset(airtabler::air_parse(out[[1]])) #parse out offset
+    offset <- airtabler::get_offset(air_parse(out[[1]])) #parse out offset
     while (!is.null(offset)) {
-      out <- c(out, list(airtabler::air_get_json(base, table_name, combined_result = FALSE, offset = offset, ...)))
-      offset <- airtabler::get_offset(airtabler::air_parse(out[[length(out)]]))
+      json_text <- list(air_get_json(base, table_name, combined_result = FALSE, offset = offset, ...))
+      out <- c(out, json_text)
+      offset <- airtabler::get_offset(air_parse(out[[length(out)]]))
     }
 
     ## now we have a list of json text, paste together
     # remove offset attributes and object delimiters {}
-    # from
+
+    # flatten list
+    out_flat <- purrr::flatten(out)
+    # paste collapse with delimiter
+    json_delimited <- paste(out_flat,collapse = "##########")
+    # remove delimiter and unnecessary json
+    # gsub behind ahead
+    json_open_preceeding_obj <- gsub(pattern = "\\],\"offset\":\"[:alnum:]{17,}/[:alnum:]{17,}\"}(?<##########)",
+                                 replacement = ",",
+                                 x = json_delimited)
+    # gsub look head
+    json_open_following_obj <- gsub(pattern = "(?<=##########)],{\"records\"\\:\\[",
+                                 replacement = "",
+                                 x = json_delimited)
 
     out <- dplyr::bind_rows(out)
     cbind(id = out$id, out$fields, createdTime = out$createdTime,
