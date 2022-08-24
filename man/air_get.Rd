@@ -14,6 +14,7 @@ air_get(
   fields = NULL,
   sortField = NULL,
   sortDirection = NULL,
+  filterByFormula = NULL,
   combined_result = TRUE
 )
 }
@@ -34,13 +35,15 @@ call. Note that this is represented by a record ID, not a numerical offset.}
 \item{view}{(optional) The name or ID of the view}
 
 \item{fields}{(optional) Only data for fields whose names are in this list
-will be included in the records. If you don't need every field, you can use
-this parameter to reduce the amount of data transferred.}
+will be included in the records. If you don't need every field, you can use}
 
 \item{sortField}{(optional) The field name to use for sorting}
 
 \item{sortDirection}{(optional) "asc" or "desc". The sort order in which the
 records will be returned. Defaults to asc.}
+
+\item{filterByFormula}{String. Use a formula to filter results. See \href{airtable docs}{https://support.airtable.com/hc/en-us/articles/223247187-How-to-sort-filter-or-retrieve-ordered-records-in-the-API}
+this parameter to reduce the amount of data transferred.}
 
 \item{combined_result}{If TRUE (default) all data is returned in the same data.
 If FALSE table fields are returned in separate \code{fields} element.}
