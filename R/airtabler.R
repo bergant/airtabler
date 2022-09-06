@@ -105,7 +105,7 @@ air_get <- function(base, table_name,
   request_url <- httr::modify_url(request_url, query = param_list)
   request_url <- gsub(pattern = "fields=",replacement = "fields%5B%5D=",x = request_url)
 
-  print(request_url)
+  #print(request_url)
   # call service:
   res <- httr::GET(
     url = request_url,
