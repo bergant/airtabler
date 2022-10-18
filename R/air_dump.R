@@ -428,13 +428,11 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 }
 
 
-### Get just the json to preserve the structure -- essentially modified air_get
-
-
-
 ### extract_base - returns a named list
 
 #' Dump all tables from a base into json files
+#'
+#' Essentially air_get without converting to Rs
 #'
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
