@@ -83,25 +83,27 @@ fetch_all_json <- function(base, table_name, ...) {
       offset <- airtabler::get_offset(air_parse(out[[length(out)]]))
     }
 
-    ## now we have a list of json text, paste together
-    # remove offset attributes and object delimiters {}
+    ## map over json text and remove offset attribute
+    out_json <- purrr::map_chr(out, function(x){
 
-    # flatten list
-    out_flat <- purrr::flatten(out)
-    # paste collapse with delimiter
-    json_delimited <- paste(out_flat,collapse = "##########")
-    # remove delimiter and unnecessary json
-    # gsub behind ahead
-    json_open_preceeding_obj <- gsub(pattern = "\\],\"offset\":\"[:alnum:]{17,}/[:alnum:]{17,}\"}(?<##########)",
-                                 replacement = ",",
-                                 x = json_delimited)
-    # gsub look head
-    json_open_following_obj <- gsub(pattern = "(?<=##########)],{\"records\"\\:\\[",
-                                 replacement = "",
-                                 x = json_delimited)
+      x_drop_offset <- gsub( '\\],\"offset\\":\\"\\w{1,}/\\w{1,}\\"}$',"",x)
 
-    out <- dplyr::bind_rows(out)
-    cbind(id = out$id, out$fields, createdTime = out$createdTime,
-          stringsAsFactors = FALSE)
+    })
+
+    # drop initial json section in all but first record
+    out_json_2 <- out_json
+
+    for(i in 1:length(out_json)){
+      if(i > 1){
+        out_json_2[i] <- gsub("\\{\"records\"\\:\\[",",",out_json[i])
+      }
+      next()
+    }
+
+    # make single json string
+    json_delimited <- paste(out_json_2,collapse = "")
+
+    return(json_delimited)
+
   }
 }
