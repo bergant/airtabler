@@ -161,6 +161,24 @@ cat("Updated a record with ID=", new_hotel$id, ". ",
     "New price: ", new_hotel$fields$`Price/night`, sep = "")
 ```
 
+### Typecasting
+
+When creating or updating records, if the choice string does not exactly match an existing option, the request will fail with an INVALID_MULTIPLE_CHOICE_OPTIONS error unless the typecast parameter is enabled. With both Insert and Update, you can set `typecast = TRUE`, and a new choice will be created if one does not exactly match.
+
+```{r insert}
+record_data <- list(
+  Name = "Newest hotel",
+  `Price/night` = 300,
+  Stars = "***",
+  Amenities = c("WiFi") # does not exist as an option in table yet
+)
+
+new_hotel <- 
+  TravelBucketList$Hotels$insert(record_data)
+
+cat("Inserted a record with ID=", new_hotel$id, sep = "")
+```
+
 ### Delete a record
 ```{r delete}
 TravelBucketList$Hotels$delete(new_hotel$id)

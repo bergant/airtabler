@@ -280,15 +280,18 @@ air_parse <- function(res) {
 #' @param table_name Table name
 #' @param record_data Named list of values. You can include all, some, or none
 #'   of the field values
+#' @param typecast Boolean. Whether to allow Airtable to create new
+#' categorical variables if they do not already exist in the table.
 #' @export
-air_insert <- function(base, table_name, record_data) {
+air_insert <- function(base, table_name, record_data, typecast = FALSE) {
 
   if( inherits(record_data, "data.frame")) {
-    return( air_insert_data_frame(base, table_name, record_data))
+    return( air_insert_data_frame(base, table_name, record_data, typecast))
   }
 
   record_data <- air_prepare_record(as.list(record_data))
-  json_record_data <- jsonlite::toJSON(list(fields = record_data))
+  json_record_data <- jsonlite::toJSON(list(fields = record_data,
+                                            typecast = jsonlite::unbox(typecast)))
 
   request_url <- sprintf("%s/%s/%s", air_url, base, table_name)
 
@@ -306,22 +309,23 @@ air_insert <- function(base, table_name, record_data) {
   air_parse(res)     # returns R object
 }
 
-air_insert_data_frame <- function(base, table_name, records) {
+air_insert_data_frame <- function(base, table_name, records, typecast) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <-
       as.list(records[i,])
-    air_insert(base = base, table_name = table_name, record_data = record_data)
+    air_insert(base = base, table_name = table_name, record_data = record_data, typecast = typecast)
   })
 }
 
-air_update_data_frame <- function(base, table_name, record_ids, records) {
+air_update_data_frame <- function(base, table_name, record_ids, records, typecast) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <-
       unlist(as.list(records[i,]), recursive = FALSE)
     air_update(base = base,
                table_name = table_name,
                record_id = ifelse(is.null(record_ids), record_data$id, record_ids[i]),
-               record_data = record_data)
+               record_data = record_data,
+               typecast = typecast)
   })
 }
 
@@ -395,14 +399,17 @@ air_delete_vec <- Vectorize(air_delete, vectorize.args = "record_id", SIMPLIFY =
 #' @param record_id An id of the record
 #' @param record_data Named list of values. You can include all, some, or none
 #'   of the field values
+#' @param typecast Boolean. Whether to allow Airtable to create new
+#' categorical variables if they do not already exist in the table.
 #' @export
-air_update <- function(base, table_name, record_id, record_data) {
+air_update <- function(base, table_name, record_id, record_data, typecast = FALSE) {
 
   if(inherits(record_data, "data.frame")) {
-    return(air_update_data_frame(base, table_name, record_id, record_data))
+    return(air_update_data_frame(base, table_name, record_id, record_data, typecast))
   }
   record_data <- air_prepare_record(record_data)
-  json_record_data <- jsonlite::toJSON(list(fields = record_data))
+  json_record_data <- jsonlite::toJSON(list(fields = record_data,
+                                            typecast = jsonlite::unbox(typecast)))
 
   request_url <- sprintf("%s/%s/%s/%s", air_url, base, table_name, record_id)
 
@@ -515,12 +522,12 @@ air_table_funs <- function(base, table_name) {
       air_get(base, table_name, record_id, limit, offset, view, sortField, sortDirection, combined_result)
     }
   res_list[["insert"]] <-
-    function(record_data) {
-      air_insert(base, table_name, record_data)
+    function(record_data, typecast = FALSE) {
+      air_insert(base, table_name, record_data, typecast)
     }
   res_list[["update"]] <-
-    function(record_id, record_data) {
-      air_update(base, table_name, record_id, record_data)
+    function(record_id, record_data, typecast = FALSE) {
+      air_update(base, table_name, record_id, record_data, typecast)
     }
   res_list[["delete"]] <-
     function(record_id) {
