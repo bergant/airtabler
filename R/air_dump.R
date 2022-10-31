@@ -438,6 +438,7 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 #' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
 #' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 #' Can be left as NULL if base already contains a table called description.
+#' @param add_missing_fields Logical. If true add in missing fields
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.

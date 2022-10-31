@@ -22,7 +22,8 @@
 #'   this parameter to reduce the amount of data transferred.
 #' @return A data frame with records or a list with record details if
 #'   \code{record_id} is specified.
-#' @export
+#'
+#' @export air_get_json
 air_get_json <- function(base, table_name,
                          record_id = NULL,
                          limit = NULL,
@@ -68,6 +69,17 @@ air_get_json <- function(base, table_name,
 }
 
 
+#' Get the full outputs of a table as single json object
+#'
+#' @param base String. Base ID
+#' @param table_name String. Table name
+#' @param ... additional parameters to pass to air_get_json
+#'
+#' @return
+#' @export fetch_all_json
+#'
+#' @examples
+#'
 fetch_all_json <- function(base, table_name, ...) {
   out <- list()
   out[[1]] <- air_get_json(base, table_name, combined_result = FALSE,...)
