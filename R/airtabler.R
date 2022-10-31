@@ -70,6 +70,7 @@ air_secret_key <- function(){
 #'  If FALSE table fields are returned in separate \code{fields} element.
 #' @param fields (optional) Only data for fields whose names are in this list
 #'   will be included in the records. If you don't need every field, you can use
+#' @param filterByFormula String. Use a formula to filter results. See \href{airtable docs}{https://support.airtable.com/hc/en-us/articles/223247187-How-to-sort-filter-or-retrieve-ordered-records-in-the-API}
 #'   this parameter to reduce the amount of data transferred.
 #' @return A data frame with records or a list with record details if
 #'   \code{record_id} is specified.
@@ -82,6 +83,7 @@ air_get <- function(base, table_name,
                    fields = NULL,
                    sortField = NULL,
                    sortDirection = NULL,
+                   filterByFormula = NULL,
                    combined_result = TRUE) {
 
   search_path <- table_name
@@ -94,7 +96,7 @@ air_get <- function(base, table_name,
 
   # append parameters to URL:
   param_list <- as.list(environment())[c(
-    "limit", "offset", "view", "sortField", "sortDirection")]
+    "limit", "offset", "view", "sortField", "sortDirection","filterByFormula")]
   param_list <- param_list[!sapply(param_list, is.null)]
   if(!is.null(fields)) {
     param_list <- c(param_list, list_params(x = fields, par_name = "fields"))
@@ -103,6 +105,7 @@ air_get <- function(base, table_name,
   request_url <- httr::modify_url(request_url, query = param_list)
   request_url <- gsub(pattern = "fields=",replacement = "fields%5B%5D=",x = request_url)
 
+  #print(request_url)
   # call service:
   res <- httr::GET(
     url = request_url,

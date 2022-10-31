@@ -4,12 +4,12 @@ Title: Interface to the Airtable API
 Version: 0.2.0
 Date: 2017-09-17
 Author: Darko Bergant
-Maintainer: Darko Bergant <darko.bergant@gmail.com>
-Description: Provides access to the Airtable (airtable.com) API.
+Maintainer: Collin Schwantes <schwantes@ecohealthalliance.org>
+Description: Fork from Darko Bergant's package. Provides access to the Airtable (airtable.com) API.
 Depends:
     R (>= 3.2.0)
 License: MIT + file LICENSE
-URL: https://github.com/bergant/airtabler
+URL: https://github.com/ecohealthalliance/airtabler
 LazyData: TRUE
 Imports:
     glue,

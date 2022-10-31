@@ -7,7 +7,7 @@ output:
 Provides access to the [Airtable API](http://airtable.com/api)
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
 ## Install
@@ -26,10 +26,19 @@ Generate the airtable API key from your [Airtable account](http://airtable.com/a
 
 __airtabler__ functions will read the API key from
   environment variable `AIRTABLE_API_KEY`. To start R session with the
-  initialized environvent variable create an `.Renviron` file in your home directory
-  with a line like this:
+  initialized environvent variable create an `.Renviron` file in your home directory.
   
-`AIRTABLE_API_KEY=your_api_key_here`
+```r
+usethis::edit_r_environ
+```
+
+In .Renviron add the following:
+```
+AIRTABLE_API_KEY=your_api_key_here
+
+```
+
+**NOTE: Be sure the last line of your .Renviron file is an empty return line**
 
 To check where your home is, type `path.expand("~")` in your R console.
 
