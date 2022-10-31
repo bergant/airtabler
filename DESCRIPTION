@@ -1,8 +1,8 @@
 Package: airtabler
 Type: Package
 Title: Interface to the Airtable API
-Version: 0.1.9
-Date: 2022-08-23
+Version: 0.2.0
+Date: 2017-09-17
 Author: Darko Bergant
 Maintainer: Collin Schwantes <schwantes@ecohealthalliance.org>
 Description: Fork from Darko Bergant's package. Provides access to the Airtable (airtable.com) API.
@@ -19,5 +19,8 @@ Imports:
     readxl,
     curl,
     purrr,
-    utils
-RoxygenNote: 7.2.1
+    utils,
+    snakecase,
+    tidyselect,
+    rlang
+RoxygenNote: 7.2.0
