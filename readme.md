@@ -20,8 +20,11 @@ devtools::install_github("ecohealthalliance/airtabler")
 graphical interface, your Airtable base will provide its own API to create,
 read, update, and destroy records. -  [airtable.com/api](http://airtable.com/api) 
 
-## Get and store the API key
-Generate the airtable API key from your [Airtable account](http://airtable.com/account) page.
+## Get and store the API tokens
+
+** As of November 2022 Airtable recommends using scoped tokens. The personal access tokens can be used interchangeably with the now superseded Airtable API Key.  
+
+Create appropriately [scoped personal access tokens](https://airtable.com/developers/web/guides/personal-access-tokens). 
 
 __airtabler__ functions will read the API key from
   environment variable `AIRTABLE_API_KEY`. To start R session with the
@@ -40,6 +43,8 @@ AIRTABLE_API_KEY=your_api_key_here
 **NOTE: Be sure the last line of your .Renviron file is an empty return line**
 
 To check where your home is, type `path.expand("~")` in your R console.
+
+If you're frequently working across multiple bases, consider using [`gitcrypt`](https://ecohealthalliance.github.io/eha-ma-handbook/16-encryption.html#set-up-encryption-for-a-repo-that-did-not-previously-use-git-crypt.) and the [`dotenv` package](https://cran.r-project.org/web/packages/dotenv/dotenv.pdf) to securely manage multiple tokens.  
 
 
 ## Usage
