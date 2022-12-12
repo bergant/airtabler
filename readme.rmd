@@ -37,7 +37,7 @@ usethis::edit_r_environ
 
 In .Renviron add the following:
 ```
-AIRTABLE_API_KEY=your_api_key_here
+AIRTABLE_API_KEY=your_api_token_here
 
 ```
 
