@@ -26,7 +26,7 @@ read, update, and destroy records. -  [airtable.com/api](http://airtable.com/api
 
 Create appropriately [scoped personal access tokens](https://airtable.com/developers/web/guides/personal-access-tokens). 
 
-__airtabler__ functions will read the API key from
+__airtabler__ functions will read the API token from
   environment variable `AIRTABLE_API_KEY`. To start R session with the
   initialized environvent variable create an `.Renviron` file in your home directory.
   
