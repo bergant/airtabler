@@ -41,7 +41,7 @@ file.
 }
 
 \examples{
-# Each base a fully described API
+# Each base has  a fully described API
 app_id <- "appwlxIzmQx5njRtQ" # ID for the base we are fetching.
 # Note that you can pass a `view` argument to air_get or fetch_all to get only
 # a view of a table (say, only validated records, or some other filtered view),

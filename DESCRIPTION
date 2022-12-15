@@ -11,6 +11,7 @@ Depends:
 License: MIT + file LICENSE
 URL: https://github.com/ecohealthalliance/airtabler
 LazyData: TRUE
+Encoding: UTF-8
 Imports:
     glue,
     dplyr,
@@ -22,5 +23,6 @@ Imports:
     utils,
     snakecase,
     tidyselect,
-    rlang
+    rlang,
+    stringr
 RoxygenNote: 7.2.1

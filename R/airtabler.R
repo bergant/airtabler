@@ -477,7 +477,7 @@ air_insert_data_frame <- function(base, table_name, records,typecast) {
 #' @param record_ids Vector of strings. Records to be modified
 #' @param records Dataframe. Values to update
 #'
-#' @return
+#' @return Status of HTTP request
 #' @export
 #'
 #' @examples

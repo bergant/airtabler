@@ -15,6 +15,9 @@ air_update_data_frame(base, table_name, record_ids, records)
 
 \item{records}{Dataframe. Values to update}
 }
+\value{
+Status of HTTP request
+}
 \description{
 Updates the values in a table by overwriting their current contents.
 }

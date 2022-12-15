@@ -75,7 +75,7 @@ air_get_json <- function(base, table_name,
 #' @param table_name String. Table name
 #' @param ... additional parameters to pass to air_get_json
 #'
-#' @return
+#' @return json as string
 #' @export fetch_all_json
 #'
 #' @examples

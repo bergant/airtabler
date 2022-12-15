@@ -2,9 +2,11 @@
 
 S3method(print,airtable.base)
 export(air_delete)
+export(air_download_attachments)
 export(air_dump)
 export(air_dump_to_csv)
 export(air_dump_to_json)
+export(air_expand_csv_arrays)
 export(air_generate_base_description)
 export(air_generate_metadata)
 export(air_get)
