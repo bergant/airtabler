@@ -13,6 +13,9 @@ fetch_all_json(base, table_name, ...)
 
 \item{...}{additional parameters to pass to air_get_json}
 }
+\value{
+json as string
+}
 \description{
 Get the full outputs of a table as single json object
 }

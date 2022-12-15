@@ -31,23 +31,7 @@ air_get_attachments <- function(base, table_name, field, download_file = FALSE, 
   ### get files ----
 
   if(download_file){
-    dir.create(dir_name)
-
-    xlist <- purrr::map(xfield, function(x){
-
-      if(is.null(x$url)){
-        ID <- x$id
-        warning(sprintf("Record ID %s is null",ID))
-        return(NULL)
-      }
-
-      dest <- sprintf("%s/%s", dir_name,x$filename)
-
-     utils::download.file(url = x$url,destfile = dest)
-    })
-
-    message("downloaded files in ./downloads")
-
+    x <- air_download_attachments(x,field = field,dir_name = dir_name)
   }
 
   ### extract excel ----

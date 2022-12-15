@@ -184,12 +184,20 @@ air_generate_base_description <- function(title = NA,primary_contact= NA,email =
 #' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 #' Can be left as NULL if base already contains a table called description.
 #' @param add_missing_fields Logical. Should fields described in the metadata data.frame be added to corresponding tables?
+#' @param download_attachments Logical. Should attached files be downloaded?
+#' @param ... Additional arguments to pass to air_download_attachments
+#' @param attachment_fields Optional. character vector.
+#' What field(s) should files be downloaded from? Default is to download all fields
+#' with type multipleAttachments in metadata.
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.
-#' @export
+#' @export air_dump
 #'
-air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE){
+#' @note To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
+#' tidyr::unnest for expanding list columns.
+#'
+air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL,...){
 
   names(metadata) <- snakecase::to_snake_case(names(metadata))
 
@@ -245,6 +253,45 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
           x_table[exp_obs] <- list(character(0))
         }
       }
+
+      ## download files from attachment fields
+
+      if(download_attachments){
+
+        if(rlang::is_empty(attachment_fields) & !"field_type"%in% names(metadata)){
+          rlang::abort("Unclear which fields contain attachments.
+                       Either use the attachment_fields argument or
+                       supply a metadata dataframe with field_types == 'multipleAttachments' for
+                       fields that should be downloaded")
+        }
+
+        ## get attachment fields
+        if(is.null(attachment_fields)){
+          metadata_table <- metadata[metadata$table_name == x,c("field_name","field_type")]
+
+          attachment_fields <-metadata_table |>
+            dplyr::filter(field_type == "multipleAttachments") |>
+            dplyr::pull(field_name)
+
+          if(rlang::is_empty(attachment_fields)){
+            rlang::inform("No fields of type multipleAttachment. No files to download")
+            return(x_table)
+          }
+        }
+
+        # check for field in table
+        if(is.character(attachment_fields)){
+          if(!any(attachment_fields %in% names(x_table))){
+            return(x_table)
+          }
+        }
+
+        ## build up attachment fields on x_table
+        for(af in attachment_fields){
+          x_table <- air_download_attachments(x_table,field = af,...)
+        }
+      }
+
 
       return(x_table)
 
@@ -337,6 +384,7 @@ flatten_col_to_chr <- function(data_frame){
           if(is.null(list_element)){
             list_element <- ""
           }
+
           row_value<- sprintf('"%s"',paste(list_element,collapse = ","))
 
           chr_col <- append(chr_col,row_value)
@@ -356,6 +404,7 @@ flatten_col_to_chr <- function(data_frame){
         }
 
       }
+
 
       data_frame[i] <- chr_col
     }
@@ -445,65 +494,65 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 #' @export
 #'
 air_dump_to_json <- function(base, metadata, description = NULL, add_missing_fields = TRUE){
-#
-#   names(metadata) <- snakecase::to_snake_case(names(metadata))
-#
-#   ## check for required fields
-#   required_fields <- c("table_name","field_name")
-#
-#   if(!all(required_fields %in% names(metadata))){
-#     stop(glue::glue("metadata table must contain the
-#                     following fields: {required_fields}. Note
-#                     that field names are converted to snakecase
-#                     before check."))
-#   }
-#
-#
-#   base_table_names <- unique(metadata$table_name)
-#
-#   print(base_table_names)
-#   table_list <- base_table_names |>
-#     purrr::set_names() |>
-#     purrr::map(function(x){
-#       ## get fields from str_metadata
-#
-#       fields_exp <- metadata[metadata$table_name == x,"field_name"]
-#
-#       ## pull table - add check for blank tables
-#       x_table <- airtabler::fetch_all(base,x)
-#
-#       if(!is.data.frame(x_table)){
-#         x_table <- data.frame(id = character())
-#       }
-#
-#       ## add in missing columns if any
-#       fields_obs <- names(x_table)
-#
-#       # check if any discrepancy between metadata and table
-#       fields_diff <- set_diff(fields_exp,fields_obs)
-#       #browser()
-#       if(!is.null(fields_diff)){
-#         # check for fields in obs not in exp - error
-#         obs_exp  <- setdiff(fields_obs,fields_exp)
-#         ignore_fields <- c("id","createdTime")
-#         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
-#         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
-#           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
-#           missing_fields_glue <- paste(missing_fields, collapse = ", ")
-#           stop(glue::glue('The metadata table is missing the following fields from table {x}:
-#                           {missing_fields_glue}
-#                           Please update the metadata table.https://airtable.com/{base}'))
-#         }
-#         # check for fields in exp and not in obs - append unless frictionless
-#         if(add_missing_fields){
-#           exp_obs <- setdiff(fields_exp,fields_obs)
-#           x_table[exp_obs] <- list(character(0))
-#         }
-#       }
-#
-#       return(x_table)
-#
-#     })
+  #
+  #   names(metadata) <- snakecase::to_snake_case(names(metadata))
+  #
+  #   ## check for required fields
+  #   required_fields <- c("table_name","field_name")
+  #
+  #   if(!all(required_fields %in% names(metadata))){
+  #     stop(glue::glue("metadata table must contain the
+  #                     following fields: {required_fields}. Note
+  #                     that field names are converted to snakecase
+  #                     before check."))
+  #   }
+  #
+  #
+  #   base_table_names <- unique(metadata$table_name)
+  #
+  #   print(base_table_names)
+  #   table_list <- base_table_names |>
+  #     purrr::set_names() |>
+  #     purrr::map(function(x){
+  #       ## get fields from str_metadata
+  #
+  #       fields_exp <- metadata[metadata$table_name == x,"field_name"]
+  #
+  #       ## pull table - add check for blank tables
+  #       x_table <- airtabler::fetch_all(base,x)
+  #
+  #       if(!is.data.frame(x_table)){
+  #         x_table <- data.frame(id = character())
+  #       }
+  #
+  #       ## add in missing columns if any
+  #       fields_obs <- names(x_table)
+  #
+  #       # check if any discrepancy between metadata and table
+  #       fields_diff <- set_diff(fields_exp,fields_obs)
+  #       #browser()
+  #       if(!is.null(fields_diff)){
+  #         # check for fields in obs not in exp - error
+  #         obs_exp  <- setdiff(fields_obs,fields_exp)
+  #         ignore_fields <- c("id","createdTime")
+  #         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
+  #         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
+  #           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
+  #           missing_fields_glue <- paste(missing_fields, collapse = ", ")
+  #           stop(glue::glue('The metadata table is missing the following fields from table {x}:
+  #                           {missing_fields_glue}
+  #                           Please update the metadata table.https://airtable.com/{base}'))
+  #         }
+  #         # check for fields in exp and not in obs - append unless frictionless
+  #         if(add_missing_fields){
+  #           exp_obs <- setdiff(fields_exp,fields_obs)
+  #           x_table[exp_obs] <- list(character(0))
+  #         }
+  #       }
+  #
+  #       return(x_table)
+  #
+  #     })
 }
 
 
@@ -524,3 +573,6 @@ air_dump_to_json <- function(base, metadata, description = NULL, add_missing_fie
 #   })
 #
 # }
+
+
+

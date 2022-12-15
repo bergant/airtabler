@@ -4,7 +4,15 @@
 \alias{air_dump}
 \title{Dump all tables from a base into R}
 \usage{
-air_dump(base, metadata, description = NULL, add_missing_fields = TRUE)
+air_dump(
+  base,
+  metadata,
+  description = NULL,
+  add_missing_fields = TRUE,
+  download_attachments = TRUE,
+  attachment_fields = NULL,
+  ...
+)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
@@ -15,6 +23,14 @@ air_dump(base, metadata, description = NULL, add_missing_fields = TRUE)
 Can be left as NULL if base already contains a table called description.}
 
 \item{add_missing_fields}{Logical. Should fields described in the metadata data.frame be added to corresponding tables?}
+
+\item{download_attachments}{Logical. Should attached files be downloaded?}
+
+\item{attachment_fields}{Optional. character vector.
+What field(s) should files be downloaded from? Default is to download all fields
+with type multipleAttachments in metadata.}
+
+\item{...}{Additional arguments to pass to air_download_attachments}
 }
 \value{
 List of data.frames. All tables from metadata plus the
@@ -22,4 +38,8 @@ description and metadata tables.
 }
 \description{
 Dump all tables from a base into R
+}
+\note{
+To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
+tidyr::unnest for expanding list columns.
 }
