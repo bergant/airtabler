@@ -46,11 +46,14 @@ set_diff <- function(x,y){
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param table_name String. Name of structural metadata table - the metadata that
 #' describes how tables and fields fit together.
+#' @param add_id_field Logical. If true, an "id" field is added to each table
+#' @param field_names_to_snake_case Logical. If true, values in the field_names
+#' column are converted to snake_case
 #'
 #' @return data.frame with metadata table
 #' @export
 #'
-air_get_metadata_from_table <- function(base, table_name){
+air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snake_case = TRUE){
   # get structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name)
   ## check for table_name, field_name
@@ -62,6 +65,22 @@ air_get_metadata_from_table <- function(base, table_name){
                     following fields: {required_fields}. Note
                     that field names are converted to snakecase
                     before check."))
+  }
+
+  ## make field names snake_case
+  if(snakecase){
+    str_metadata$field_names <- snakecase::to_snake_case(str_metadata$field_names)
+  }
+
+  ## add id field to all tables
+  if(add_id_field){
+
+    tables <- dplyr::distinct(.data = str_metadata,table_name,.keep_all = TRUE)
+    tables$field_desc <- "unique id assigned by airtable"
+    tables$field_type <- "singleLineText"
+
+    str_metadata <- rbind(str_metadata,tables)
+
   }
 
   return(str_metadata)
