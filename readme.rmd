@@ -48,6 +48,12 @@ To check where your home is, type `path.expand("~")` in your R console.
 If you're frequently working across multiple bases, consider using [`gitcrypt`](https://ecohealthalliance.github.io/eha-ma-handbook/16-encryption.html#set-up-encryption-for-a-repo-that-did-not-previously-use-git-crypt.) and the [`dotenv` package](https://cran.r-project.org/web/packages/dotenv/dotenv.pdf) to securely manage multiple tokens.  
 
 
+### Using the metadata API
+
+In order to use the metadata API, a personal access token or OAuth integration 
+must be used. User API keys are not supported. See the [airtable guide](https://airtable.com/developers/web/api/get-base-schema) for more 
+information.
+
 ## Usage
 
 Create airtable base object:
