@@ -11,6 +11,7 @@ air_dump(
   add_missing_fields = TRUE,
   download_attachments = TRUE,
   attachment_fields = NULL,
+  field_names_to_snakecase = TRUE,
   ...
 )
 }
@@ -29,6 +30,9 @@ Can be left as NULL if base already contains a table called description.}
 \item{attachment_fields}{Optional. character vector.
 What field(s) should files be downloaded from? Default is to download all fields
 with type multipleAttachments in metadata.}
+
+\item{field_names_to_snakecase}{Logical. Should field names be
+converted to snake case?}
 
 \item{...}{Additional arguments to pass to air_download_attachments}
 }

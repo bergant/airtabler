@@ -47,13 +47,13 @@ set_diff <- function(x,y){
 #' @param table_name String. Name of structural metadata table - the metadata that
 #' describes how tables and fields fit together.
 #' @param add_id_field Logical. If true, an "id" field is added to each table
-#' @param field_names_to_snake_case Logical. If true, values in the field_names
+#' @param field_names_to_snakecase Logical. If true, values in the field_names
 #' column are converted to snake_case
 #'
 #' @return data.frame with metadata table
 #' @export
 #'
-air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snake_case = TRUE){
+air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snakecase = TRUE){
   # get structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name)
   ## check for table_name, field_name
@@ -68,8 +68,8 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
   }
 
   ## make field names snake_case
-  if(snakecase){
-    str_metadata$field_names <- snakecase::to_snake_case(str_metadata$field_names)
+  if(field_names_to_snakecase){
+    str_metadata$field_name <- snakecase::to_snake_case(str_metadata$field_name)
   }
 
   ## add id field to all tables
@@ -78,6 +78,8 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
     tables <- dplyr::distinct(.data = str_metadata,table_name,.keep_all = TRUE)
     tables$field_desc <- "unique id assigned by airtable"
     tables$field_type <- "singleLineText"
+    tables$field_id <- NA
+    tables$field_opt_name <- NA
 
     str_metadata <- rbind(str_metadata,tables)
 
@@ -208,6 +210,8 @@ air_generate_base_description <- function(title = NA,primary_contact= NA,email =
 #' @param attachment_fields Optional. character vector.
 #' What field(s) should files be downloaded from? Default is to download all fields
 #' with type multipleAttachments in metadata.
+#' @param field_names_to_snakecase Logical. Should field names be
+#'  converted to snake case?
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.
@@ -216,7 +220,7 @@ air_generate_base_description <- function(title = NA,primary_contact= NA,email =
 #' @note To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
 #' tidyr::unnest for expanding list columns.
 #'
-air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL,...){
+air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL, field_names_to_snakecase = TRUE,...){
 
   names(metadata) <- snakecase::to_snake_case(names(metadata))
 
@@ -237,6 +241,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
   table_list <- base_table_names |>
     purrr::set_names() |>
     purrr::map(function(x){
+
       ## get fields from str_metadata
 
       fields_exp <- metadata[metadata$table_name == x,"field_name"]
@@ -248,6 +253,10 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
         x_table <- data.frame(id = character())
       }
 
+      if(field_names_to_snakecase){
+        names(x_table) <- snakecase::to_snake_case(names(x_table))
+      }
+
       ## add in missing columns if any
       fields_obs <- names(x_table)
 
@@ -257,7 +266,7 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
       if(!is.null(fields_diff)){
         # check for fields in obs not in exp - error
         obs_exp  <- setdiff(fields_obs,fields_exp)
-        ignore_fields <- c("id","createdTime")
+        ignore_fields <- c("id","createdTime","created_time")
         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]

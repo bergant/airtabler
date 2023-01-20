@@ -4,13 +4,23 @@
 \alias{air_get_metadata_from_table}
 \title{Pull the metadata table from airtable}
 \usage{
-air_get_metadata_from_table(base, table_name)
+air_get_metadata_from_table(
+  base,
+  table_name,
+  add_id_field = TRUE,
+  field_names_to_snakecase = TRUE
+)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
 
 \item{table_name}{String. Name of structural metadata table - the metadata that
 describes how tables and fields fit together.}
+
+\item{add_id_field}{Logical. If true, an "id" field is added to each table}
+
+\item{field_names_to_snakecase}{Logical. If true, values in the field_names
+column are converted to snake_case}
 }
 \value{
 data.frame with metadata table
