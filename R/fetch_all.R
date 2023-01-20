@@ -30,12 +30,12 @@
 #'
 #' @examples
 #' # Each base has a fully described API
-#' app_id <- "appwlxIzmQx5njRtQ" # ID for the base we are fetching.
+#' # app_id <- "appVjIfAo8AJlfTkx" # ID for the base we are fetching.
 #' # Note that you can pass a `view` argument to air_get or fetch_all to get only
 #' # a view of a table (say, only validated records, or some other filtered view),
 #' # e.g.,
-#' # bats <- fetch_all(app_id, "Bat", view = "Validated Records")
-#' talks <- fetch_all(app_id, "TALKS")
+#' # bats <- fetch_all(app_id, "images", view = "Status View")
+#' # talks <- fetch_all(app_id, "images")
 #'
 fetch_all <- function(base, table_name, ...) {
   out <- list()
