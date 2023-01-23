@@ -36,6 +36,35 @@ set_diff <- function(x,y){
   return(diff)
 }
 
+# add the metadata table to the base
+air_insert_metadata_table <- function(base){
+
+}
+
+# add the description table to the base
+
+air_insert_description_table <- function(base){
+
+}
+
+# pull data from api and populate metadata table
+air_get_metadata_from_api <- function(base){
+
+  # create metadata table skeleton
+  md_df <- data.frame(field_name = "",
+                      table_name = "",
+                      field_desc = "",
+                      field_type = "",
+                      field_id = "",
+                      table_id = "",
+                      field_opts = "")
+  # get base schema
+
+  # parse base schema to populate metadata table
+
+  # insert metadata table
+}
+
 #' Pull the metadata table from airtable
 #'
 #' For information about creating metadata tables in your base see the

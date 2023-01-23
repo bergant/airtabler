@@ -1,11 +1,10 @@
-#' Get base schema - enterprise only
+#' Get base schema
 #'
-#' Metadata API currently only available via enterprise accounts.
-#' Get the schema for the tables in a base.
+#' Get the schema for the tables in a base. This is a wrapper for the api call
+#' Get base schema.
 #'
 #' @section Using Metadata API:
-#' The meta data api is not accepting new requests for client secrets as of
-#' 06 July 2021. Will update when metadata api becomes available.
+#' Metadata api is currently available to all users.
 #'
 #' @param base Airtable base ID
 #' @param ... additional paramters
@@ -21,15 +20,16 @@ air_get_schema <-  function(base,...){
   res <- httr::GET(
     request_url,
     httr::add_headers(
-      Authorization = paste("Bearer", air_api_key()),
-      "X-Airtable-Client-Secret" = air_secret_key()
+      Authorization = paste("Bearer", air_api_key())
     )
   )
 
   air_validate(res)
   # may need a new air_parse function
 
-  schema <- jsonlite::fromJSON(res)
+  res_content <- httr::content(res,as = "text")
+
+  schema <- jsonlite::fromJSON(res_content)
 
   return(schema)
 }

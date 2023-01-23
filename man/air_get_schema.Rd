@@ -2,7 +2,7 @@
 % Please edit documentation in R/air_get_schema.R
 \name{air_get_schema}
 \alias{air_get_schema}
-\title{Get base schema - enterprise only}
+\title{Get base schema}
 \usage{
 air_get_schema(base, ...)
 }
@@ -15,12 +15,11 @@ air_get_schema(base, ...)
 list of schema
 }
 \description{
-Metadata API currently only available via enterprise accounts.
-Get the schema for the tables in a base.
+Get the schema for the tables in a base. This is a wrapper for the api call
+Get base schema.
 }
 \section{Using Metadata API}{
 
-The meta data api is not accepting new requests for client secrets as of
-06 July 2021. Will update when metadata api becomes available.
+Metadata api is currently available to all users.
 }
 

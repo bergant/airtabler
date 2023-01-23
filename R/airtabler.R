@@ -31,6 +31,8 @@ NULL
 air_url <- "https://api.airtable.com/v0"
 air_meta_url <- "https://api.airtable.com/v0/meta/bases"
 
+# consider consolidating keys as the API key is now a token that can access
+# the metadata api
 air_api_key <- function() {
   key <- Sys.getenv("AIRTABLE_API_KEY")
   if(key == "") {
@@ -39,6 +41,7 @@ air_api_key <- function() {
   key
 }
 
+# consider
 air_secret_key <- function(){
   key <- Sys.getenv("AIRTABLE_SECRET_KEY")
   if(key == "") {
