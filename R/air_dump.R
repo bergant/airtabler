@@ -37,33 +37,18 @@ set_diff <- function(x,y){
 }
 
 # add the metadata table to the base
-air_insert_metadata_table <- function(base){
+air_insert_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
+
 
 }
 
 # add the description table to the base
 
-air_insert_description_table <- function(base){
+air_insert_description_table <- function(base,description){
 
 }
 
-# pull data from api and populate metadata table
-air_get_metadata_from_api <- function(base){
 
-  # create metadata table skeleton
-  md_df <- data.frame(field_name = "",
-                      table_name = "",
-                      field_desc = "",
-                      field_type = "",
-                      field_id = "",
-                      table_id = "",
-                      field_opts = "")
-  # get base schema
-
-  # parse base schema to populate metadata table
-
-  # insert metadata table
-}
 
 #' Pull the metadata table from airtable
 #'
@@ -117,6 +102,88 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
   return(str_metadata)
 }
 
+
+# pull data from api and populate metadata table
+air_generate_metadata_from_api <- function(base,
+                                           metadata_table_name = "Meta Data",
+                                           include_metadata_table = FALSE){
+
+  # get base schema
+  schema <- air_get_schema(base)
+
+  tables_df <- schema$tables
+
+  if(!include_metadata_table){
+    tables_df <- tables_df[stringr::str_detect(tables_df$name,
+                                               pattern = metadata_table_name,
+                                               negate = TRUE),]
+  }
+
+  # parse base schema to populate metadata table
+
+  #split by table id to parse with purrr
+  schema_list <- split(tables_df,f = tables_df$id)
+
+  metadata_df <- purrr::map_dfr(schema_list, function(x){
+
+    # create metadata table skeleton
+    fields_df <-x$fields[[1]]
+
+    fields_df$choices <- ""
+    fields_df$linkedTableID <- ""
+
+    # get flattened choice names
+    if(!rlang::is_empty(fields_df$options$choices)){
+      fields_df$choices <- purrr::map_chr(fields_df$options$choices,function(x){
+        if(is.null(x)){
+          return("")
+        } else {
+          return(paste(x$name,collapse = ", "))
+        }
+      })
+    }
+
+    # get linked table id
+    if(!rlang::is_empty(fields_df$options$linkedTableId)){
+      fields_df$linkedTableID <- fields_df$options$linkedTableId
+    }
+
+
+    fields_df <- fields_df |>
+      dplyr::mutate(field_opts =
+               dplyr::case_when(
+                  type == "multipleSelects" | type == "singleSelect" ~ choices,
+                 type == "multipleRecordLinks" ~ linkedTableID,
+                 TRUE ~ ""
+               )
+      )
+
+
+
+
+
+    # check that descriptions arent empty
+
+    if(rlang::is_empty(fields_df$description)){
+      fields_df$description <- ""
+    }
+
+    md_df <- data.frame(field_name = fields_df$name,
+                        table_name = x$name,
+                        field_desc = fields_df$description,
+                        field_type = fields_df$type,
+                        field_id = fields_df$id,
+                        table_id = x$id,
+                        field_opts = fields_df$field_opts,
+                        primary_key = (x$primaryFieldId == fields_df$id)
+    )
+
+  })
+
+  return(metadata_df)
+}
+
+##air_insert
 
 #' Generated Metadata from table names
 #'
