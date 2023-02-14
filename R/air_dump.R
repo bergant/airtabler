@@ -37,17 +37,118 @@ set_diff <- function(x,y){
 }
 
 # add the metadata table to the base
-air_insert_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
+#' Create a new metadata table in the base
+#'
+#' @param base String. Base id
+#' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
+#' @param table_name String. name of the metadata table. default is "Meta Data"
+#'
+#' @return List with outcome from creating the table and inserting the records
+#' @export air_create_metadata_table
+#'
+#' @examples
+air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
 
+  # check for meta data table
+  ## if exists, stop
+  schema <- air_get_schema("appVjIfAo8AJlfTkx")
+
+  if(table_name %in% schema$tables$name){
+    msg <- glue::glue("{table_name} already exists in the base {base}.
+                      Please use air_update_metadata_table to update the metadata table
+                      or delete the table and re-run the function")
+    stop(msg)
+  }
+
+
+  # create fields_df
+  # add description for standard names
+  description <- NA
+  type <- "singleLineText"
+
+  #
+  if(setequal(names(meta_data), c("field_name", "table_name", "field_desc",
+                                  "field_type", "field_id",  "table_id",
+                                  "field_opts",  "primary_key"))){
+
+    # create description object
+    description <- c("https://schema.org/name",
+                     "https://schema.org/name",
+                     "https://schema.org/description",
+                     "https://schema.org/category",
+                     "https://schema.org/identifier",
+                     "https://schema.org/identifier",
+                     "https://schema.org/option",
+                     "https://schema.org/Boolean"
+    )
+
+
+  }
+
+  fields_df <- air_fields_df_template(name = names(meta_data),
+                                      description = description,
+                                      type = "singleLineText",
+                                      options = NA)
+
+  # create list describing table
+
+  table_list <- air_table_template(table_name = table_name,
+                                   description = "structural metadata for the base",
+                                   fields_df = fields_df)
+  # create table
+
+  outcome_create_table <- air_create_table(base, table_list)
+
+  # insert data
+
+  outcome_insert_data <-   tryCatch(
+    air_insert_data_frame(base = base,table_name = table_name,records = meta_data),
+    error=function(cond) {
+
+      warning(cond)
+
+      return("data not inserted")
+    })
+
+  if(is.character(outcome_insert_data)){
+    stop("Table created but data not inserted. Check field types then use
+         air_insert_data_frame or air_update_metadata_table to add metadata
+         records.")
+  }
+
+
+  return(list("create_table" = outcome_create_table,
+              "insert_data" = outcome_insert_data))
 
 }
 
 # add the description table to the base
 
-air_insert_description_table <- function(base,description){
+air_insert_description_table <- function(base,description, table_name = "Description"){
 
 }
 
+# update metadata table
+
+air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
+
+  # check for Meta Data table
+  ## if no meta data table, stop
+  # pull down current meta data table
+  # compare with updated values
+  # update records
+  # create new records
+  # drop records no longer in meta data
+
+}
+
+# update description table
+air_update_description_table <- function(base,description, table_name = "Description"){
+
+  # check for description
+  # update records
+
+}
 
 
 #' Pull the metadata table from airtable
@@ -151,11 +252,11 @@ air_generate_metadata_from_api <- function(base,
 
     fields_df <- fields_df |>
       dplyr::mutate(field_opts =
-               dplyr::case_when(
-                  type == "multipleSelects" | type == "singleSelect" ~ choices,
-                 type == "multipleRecordLinks" ~ linkedTableID,
-                 TRUE ~ ""
-               )
+                      dplyr::case_when(
+                        type == "multipleSelects" | type == "singleSelect" ~ choices,
+                        type == "multipleRecordLinks" ~ linkedTableID,
+                        TRUE ~ ""
+                      )
       )
 
 
@@ -175,12 +276,13 @@ air_generate_metadata_from_api <- function(base,
                         field_id = fields_df$id,
                         table_id = x$id,
                         field_opts = fields_df$field_opts,
-                        primary_key = (x$primaryFieldId == fields_df$id)
+                        primary_key = as.character(x$primaryFieldId == fields_df$id)
     )
+
 
   })
 
-  return(metadata_df)
+return(metadata_df)
 }
 
 ##air_insert
