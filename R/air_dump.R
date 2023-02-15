@@ -42,12 +42,16 @@ set_diff <- function(x,y){
 #' @param base String. Base id
 #' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
 #' @param table_name String. name of the metadata table. default is "Meta Data"
+#' @param description Character vector. Descriptions of metadata table fields
+#' @param type Character vector. Column types for metadata table fields. see https://airtable.com/developers/web/api/field-model
+#' @param options Data frame. Options for fields in metadata table.
 #'
 #' @return List with outcome from creating the table and inserting the records
 #' @export air_create_metadata_table
 #'
 #' @examples
-air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
+air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  description = NA,
+                                      type = "singleLineText", options = NA){
 
   # check for meta data table
   ## if exists, stop
@@ -63,8 +67,7 @@ air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
 
   # create fields_df
   # add description for standard names
-  description <- NA
-  type <- "singleLineText"
+
 
   #
   if(setequal(names(meta_data), c("field_name", "table_name", "field_desc",
@@ -87,8 +90,8 @@ air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
 
   fields_df <- air_fields_df_template(name = names(meta_data),
                                       description = description,
-                                      type = "singleLineText",
-                                      options = NA)
+                                      type = type,
+                                      options = options)
 
   # create list describing table
 
