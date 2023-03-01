@@ -13,12 +13,13 @@
 #' @param dir_name String. Where should files be downloaded to?
 #' Will create the folder if it does not exist.
 #' @param skip Numeric. How many lines should be skipped? See \code{readxl::read_excel} skip.
+#' @param parse_all_sheets Logical. Should all sheets in spreadsheet be parsed?
 #'
 #' @return named list of data frames
 #' @export air_get_attachments
 #'
 #' @examples
-air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, ...){
+air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, parse_all_sheets = FALSE, ...){
   #browser()
   # get data
   x <- fetch_all(base,table_name,...)
@@ -44,7 +45,7 @@ air_get_attachments <- function(base, table_name, field, download_file = FALSE, 
       warning(sprintf("Record ID %s is null",ID))
       return(NULL)
     }
-    read_excel_url(x$url, skip = skip) ## need to be able to pass additional arguments
+    read_excel_url(x$url, skip = skip,parse_all_sheets = parse_all_sheets) ## need to be able to pass additional arguments
   })
 
   ## add extract to data frame ----
