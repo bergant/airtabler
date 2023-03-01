@@ -53,14 +53,17 @@ air_secret_key <- function(){
 
 #' Get a list of records or retrieve a single
 #'
-#' You can retrieve records in an order of a view by providing the name or ID of
+#' Retrieve records or a single record from a table. If you provide a record_id,
+#' you cannot specify fields, views, or filterFormulas.
+#'
+#'You can retrieve records in an order of a view by providing the name or ID of
 #' the view in the view query parameter. The results will include only records
 #' visible in the order they are displayed.
 #'
 #' @param base Airtable base
 #' @param table_name Table name
 #' @param record_id (optional) Use record ID argument to retrieve an existing
-#'   record details
+#'   record details. See \url{https://airtable.com/developers/web/api/get-record}
 #' @param limit (optional) A limit on the number of records to be returned.
 #'   Limit can range between 1 and 100.
 #' @param offset (optional) Page offset returned by the previous list-records

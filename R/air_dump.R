@@ -42,7 +42,7 @@ set_diff <- function(x,y){
 #' @param base String. Base id
 #' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
 #' @param table_name String. name of the metadata table. default is "Meta Data"
-#' @param description Character vector. Descriptions of metadata table fields
+#' @param field_descriptions Character vector. Descriptions of metadata table fields
 #' @param type Character vector. Column types for metadata table fields. see https://airtable.com/developers/web/api/field-model
 #' @param options Data frame. Options for fields in metadata table.
 #'
@@ -50,12 +50,12 @@ set_diff <- function(x,y){
 #' @export air_create_metadata_table
 #'
 #' @examples
-air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  description = NA,
+air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  field_descriptions = NA,
                                       type = "singleLineText", options = NA){
 
   # check for meta data table
   ## if exists, stop
-  schema <- air_get_schema("appVjIfAo8AJlfTkx")
+  schema <- air_get_schema(base)
 
   if(table_name %in% schema$tables$name){
     msg <- glue::glue("{table_name} already exists in the base {base}.
@@ -75,21 +75,21 @@ air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  
                                   "field_opts",  "primary_key"))){
 
     # create description object
-    description <- c("https://schema.org/name",
-                     "https://schema.org/name",
-                     "https://schema.org/description",
-                     "https://schema.org/category",
-                     "https://schema.org/identifier",
-                     "https://schema.org/identifier",
-                     "https://schema.org/option",
-                     "https://schema.org/Boolean"
+    field_descriptions <- c("https://schema.org/name",
+                            "https://schema.org/name",
+                            "https://schema.org/description",
+                            "https://schema.org/category",
+                            "https://schema.org/identifier",
+                            "https://schema.org/identifier",
+                            "https://schema.org/option",
+                            "https://schema.org/Boolean"
     )
 
 
   }
 
   fields_df <- air_fields_df_template(name = names(meta_data),
-                                      description = description,
+                                      description = field_descriptions,
                                       type = type,
                                       options = options)
 
@@ -127,22 +127,239 @@ air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  
 
 # add the description table to the base
 
-air_insert_description_table <- function(base,description, table_name = "Description"){
+#' Create the descriptive metadata table for the base
+#'
+#' @details DCMI terms can be found here \url{https://www.dublincore.org/specifications/dublin-core/dcmi-terms/}
+#'
+#' @param base String. Base id
+#' @param description Data frame. Description from air_get_base_description* or air_generate_base_description
+#' @param table_name String. Name of description table
+#' @param field_descriptions Character vector. Descriptions of metadata table fields. If NA, DCMI terms will be used where possible.
+#' @param type Character vector. Column types for metadata table fields. see \url{https://airtable.com/developers/web/api/field-model}
+#' @param options Data frame. Options for fields in metadata table.
+#'
+#'
+#' @return List. Outputs from creating the table and inserting the records
+#' @export air_create_description_table
+#'
+#' @examples
+#'\dontrun{
+#' base = "appVjIfAo8AJlfTkx"
+#' table_name= "description"
+#'
+#' description <- air_generate_base_description(title = "Example Base",
+#'                                              creator = "Collin Schwantes")
+#'
+#' air_create_description_table(base,description,table_name)
+#'}
+#'
+air_create_description_table <- function(base,
+                                         description,
+                                         table_name = "Description",
+                                         field_descriptions = NA,
+                                         type = "singleLineText",
+                                         options = NA){
+
+  # check for description table
+  ## if exists, stop
+  schema <- air_get_schema(base)
+
+  if(table_name %in% schema$tables$name){
+    msg <- glue::glue("{table_name} already exists in the base {base}.
+                      Please use air_update_description_table to update the description table
+                      or delete the table and re-run the function")
+    stop(msg)
+  }
+
+
+  # create fields_df
+  # add description for dcmi terms
+  # check for dcmi terms
+  if(all(is.na(field_descriptions))){
+    # create a placeholder dataframe
+    description_terms_df <- data.frame(col_names = names(description), dcmi_term = NA)
+
+    # setup sprintf pattern
+    dcmi_uri <- "http://purl.org/dc/terms/%s"
+
+    # check for a match for each dcmi term
+    description_terms_df_2 <- purrr::map_dfr(deposits::dcmi_terms(), function(dcmi_term){
+
+      # get index position for a term
+      dcmi_term_pos  <- stringr::str_which(description_terms_df$col_names,pattern =dcmi_term,negate = FALSE)
+
+      if(!rlang::is_empty(dcmi_term_pos)){
+
+        description_terms_df[dcmi_term_pos,"dcmi_term"] <-  sprintf(dcmi_uri,dcmi_term)
+
+        return(description_terms_df[dcmi_term_pos,])
+      }
+
+      return(NULL)
+    })
+
+    # get undescribed terms
+
+    description_terms_df_3 <- dplyr::anti_join(description_terms_df,description_terms_df_2,"col_names")
+
+    description_terms_df_4 <- rbind(description_terms_df_2,description_terms_df_3)
+
+    description_terms_df_5 <- description_terms_df_4[match(names(description),description_terms_df_4$col_names),]
+
+    field_descriptions <- description_terms_df_5$dcmi_term
+
+  }
+
+  fields_df <- air_fields_df_template(name = names(description),
+                                      description = field_descriptions,
+                                      type = type,
+                                      options = options)
+
+  # create list describing table
+
+  table_list <- air_table_template(table_name = table_name,
+                                   description = "descriptive metadata for the base",
+                                   fields_df = fields_df)
+  # create table
+
+  outcome_create_table <- air_create_table(base, table_list)
+
+  # insert data
+
+  outcome_insert_data <-   tryCatch(
+    air_insert_data_frame(base = base,table_name = table_name,records = description),
+    error=function(cond) {
+
+      warning(cond)
+
+      return("data not inserted")
+    })
+
+  if(is.character(outcome_insert_data)){
+    stop("Table created but data not inserted. Check field types then use
+         air_insert_data_frame or air_update_description_table to add metadata
+         records.")
+  }
+
+
+  return(list("create_table" = outcome_create_table,
+              "insert_data" = outcome_insert_data))
 
 }
 
 # update metadata table
 
-air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data"){
+#' Update the descriptive metadata table
+#'
+#' @param base String. Base id
+#' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
+#' @param table_name String. Name of metadata table
+#' @param join_field String. Name of field to join new and current metadata. Likely \code{field_id}
+#' @param record_id_field String. Name of record id field. Like \code{id}
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'\dontrun{
+#' base = "appVjIfAo8AJlfTkx"
+#' metadata <- air_generate_metadata_from_api(base = base)
+#' air_update_metadata_table(base,metadata)
+#'}
+#'
+air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", join_field = "field_id", record_id_field = "id"){
+
+  schema <- air_get_schema(base)
 
   # check for Meta Data table
   ## if no meta data table, stop
+
+  if(!table_name %in% schema$tables$name){
+    msg <- glue::glue("No table called {table_name} in base {base}.
+                      Please use air_create_metadata_table to create the metadata table
+                      or create it manually.")
+    stop(msg)
+  }
+
+  ## get table_id
+
+  table_id <- schema$tables[schema$tables$name == table_name,"id"]
+
   # pull down current meta data table
+
+  current_metadata_table <- fetch_all(base,table_name)
+
+  #create any new fields from meta_data
+
+  update_log <- list(
+    fields_created = NA,
+    records_updated = NA,
+    records_inserted = NA,
+    records_deleted = NA
+  )
+
+  col_check <- !names(meta_data) %in% names(current_metadata_table)
+
+  if(all(col_check)){
+    msg <- glue::glue("The meta_data object and the metadata table in your base, {table_name}, share
+                      no fields.")
+    warning(msg)
+  }
+
+  if(any(col_check)){
+    cols_to_create <- names(meta_data)[col_check]
+
+    fields_created  <- air_create_field(base = base,
+                                        table_id = table_id,
+                                        name = cols_to_create)
+
+    message(fields_created)
+
+    update_log$fields_created  <- fields_created
+
+  }
+
   # compare with updated values
+  ## use field ids
+
+  ## assumes a certain structure for metadata
+
+  min_update_df <- current_metadata_table[,c(join_field,record_id_field)]
+
+  records_to_update <- dplyr::inner_join(meta_data,min_update_df,by = join_field )
+
   # update records
-  # create new records
+
+  records_updated <- air_update_data_frame(base, table_name, records_to_update$id,records_to_update)
+
+  update_log$records_updated <- records_updated
+
+  # insert new records
+
+  records_to_insert <- dplyr::anti_join(meta_data,min_update_df,by = join_field)
+
+  records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
+
+  update_log$records_inserted <- records_inserted
+
+
   # drop records no longer in meta data
 
+  records_to_delete <- dplyr::anti_join(min_update_df,meta_data,by = join_field)
+
+
+  if(nrow(records_to_delete) >0){
+  records_deleted <- purrr::map(records_to_delete$id, function(id){
+    air_delete(base, table_name,id)
+  })
+  } else {
+    records_deleted <- "No records deleted"
+  }
+
+  update_log$records_deleted <- records_deleted
+
+
+  return(update_log)
 }
 
 # update description table
@@ -285,7 +502,7 @@ air_generate_metadata_from_api <- function(base,
 
   })
 
-return(metadata_df)
+  return(metadata_df)
 }
 
 ##air_insert
@@ -366,16 +583,20 @@ air_get_base_description_from_table<- function(base, table_name){
 #'
 #' @param title String. Title is a property that refers to the name or names by
 #' which a resource is formally known.
+#' @param creator String. Person or people who created the base
 #' @param primary_contact String.  Person or entity primarily responsible for
 #' making the content of a resource
 #' @param email String. Email of primary_contact
-#' @param base_description String. This property refers to the description of
+#' @param description String. This property refers to the description of
 #' the content of a resource. The description is a potentially rich source of
 #' indexable terms and assist the users in their selection of an appropriate
 #' resource.
+#' @param contributor String. An entity responsible for making contributions to the resource.
+#' @param identifier String. An unambiguous reference to the resource within a given context.
+#' @param license String. A legal document giving official permission to do something with the resource. "CC BY 4.0"
 #' @param ... String. Additional descriptive metadata elements. See details.
 #' Additional elements can be added as name pair values e.g.
-#' \code{license = "CC BY 4.0", is_part_of = "https://doi.org/10.48321/MyDMP01"}
+#' \code{ isPartOf = "https://doi.org/00.00000/MyPaper01", isReferencedBy = "https://doi.org/10.48321/MyDMP01"}
 #'
 #' @return data.frame with descriptive metadata
 #' @export
@@ -392,8 +613,25 @@ air_get_base_description_from_table<- function(base, table_name){
 #'  is_part_of = "https://doi.org/10.5072/zenodo_sandbox.1062705"
 #'  )
 #'
-air_generate_base_description <- function(title = NA,primary_contact= NA,email = NA, base_description = NA,...){
-  desc_table <- data.frame(title,primary_contact,email,base_description,...)
+air_generate_base_description <- function(title = NA,
+                                          creator= NA,
+                                          created=NA,
+                                          primary_contact=NA,
+                                          email = NA,
+                                          description = NA,
+                                          contributor = NA,
+                                          identifier =NA,
+                                          license = NA,...){
+  desc_table <- data.frame(title = title,
+                           creator= creator,
+                           created=created,
+                           primary_contact=primary_contact,
+                           email = email,
+                           description = description,
+                           contributor = contributor,
+                           identifier =identifier,
+                           license = license,
+                           ...)
   return(desc_table)
 }
 

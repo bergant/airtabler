@@ -143,4 +143,56 @@ air_create_table <- function(base, table_list){
   return(schema)
 }
 
+#' Create a new field in a table
+#'
+#'  See https://airtable.com/developers/web/api/create-field
+#'
+#' @param base String. Base id
+#' @param table_id String. Table id. Can be found using \code{air_get_schema}
+#' @param name String. Name of the field
+#' @param description String. Description of the field
+#' @param type String. Type of field. See https://airtable.com/developers/web/api/field-model
+#' @param options Data frame. See https://airtable.com/developers/web/api/field-model
+#'
+#' @return description of newly created field as a list
+#' @export air_create_field
+#'
+#' @examples
+air_create_field <- function(base,
+                             table_id,
+                             name,
+                             description = NA,
+                             type = "singleLineText",
+                             options= NA){
+
+  field_df <- air_fields_df_template(name = name,description = description, type = type, options = options)
+
+  "https://api.airtable.com/v0/meta/bases/{baseId}/tables/{tableId}/fields"
+
+  request_url <- sprintf("%s/%s/tables/%s/fields", air_meta_url, base,table_id)
+  request_url <- utils::URLencode(request_url)
+
+  fields_json <- jsonlite::toJSON(field_df,pretty = TRUE,auto_unbox = TRUE)
+
+  # call service:
+  res <- httr::POST(
+    request_url,
+    httr::content_type("application/json"),
+    httr::add_headers(
+      Authorization = paste("Bearer", air_api_key())
+    ),
+    body = fields_json
+  )
+
+  air_validate(res)
+  # may need a new air_parse function
+
+  res_content <- httr::content(res,as = "text")
+
+  schema <- jsonlite::fromJSON(res_content)
+
+  return(schema)
+
+}
+
 
