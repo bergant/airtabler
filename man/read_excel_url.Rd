@@ -4,17 +4,19 @@
 \alias{read_excel_url}
 \title{Read an excel file from URL}
 \usage{
-read_excel_url(url, fileext = ".xslx", ...)
+read_excel_url(url, fileext = ".xslx", parse_all_sheets = FALSE, ...)
 }
 \arguments{
 \item{url}{String. Url for file}
 
 \item{fileext}{String. File extension for temp file}
 
+\item{parse_all_sheets}{Logical. Should all sheets be parsed?}
+
 \item{...}{additional arguments to pass to \code{read_excel}}
 }
 \value{
-tibble
+tibble or list of tibbles if parse_all_sheets = TRUE
 }
 \description{
 Extends \code{readxl::read_excel} to allow for reading from a URL.

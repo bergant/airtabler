@@ -13,6 +13,7 @@ air_get_attachments(
   extract_type = "excel",
   extract_field = "excel_extract",
   skip = 0,
+  parse_all_sheets = FALSE,
   ...
 )
 }
@@ -34,6 +35,8 @@ Should be one of: excel}
 \item{extract_field}{String. Name of extract field that will be created}
 
 \item{skip}{Numeric. How many lines should be skipped? See \code{readxl::read_excel} skip.}
+
+\item{parse_all_sheets}{Logical. Should all sheets in spreadsheet be parsed?}
 
 \item{...}{Additional arguments to pass to \code{air_get}}
 }
