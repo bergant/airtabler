@@ -31,7 +31,16 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
   if(!is.list(x[,field])){
     error_msg <- glue::glue("{field} is not of class list. Verify the name of
     the column used to store attachments in airtable")
-    rlang::abort(error_msg)
+    rlang::warn(error_msg)
+
+    field_file_paths <- sprintf("%s_file_paths",field)
+
+    x$file_path <- NA
+
+    # using dynamic names in case a base has multiple file attachment
+    # columns
+    x <- dplyr::rename(x,{{field_file_paths}} := file_path)
+    return(x)
   }
 
   ### subset to necessary records ----
