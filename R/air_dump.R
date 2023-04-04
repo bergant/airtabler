@@ -363,11 +363,129 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 }
 
 # update description table
-air_update_description_table <- function(base,description, table_name = "Description"){
+#' Update the description table
+#'
+#' Update the descriptive metadata table in airtable
+#'
+#' @param base String. Base id
+#' @param description Data frame. Contains updated description
+#' @param table_name  String. Name of description table
+#' @param join_field String. Field to perform join on
+#' @param record_id_field String. Name of the record id field
+#'
+#' @return list that logs updates
+#' @export
+#'
+#' @examples
+air_update_description_table <- function(base,description, table_name = "Description", join_field = "title", record_id_field = "id"){
+
+
   # check for description
-  current_description_table <- air_fetch(base,table_name)
+  schema <- air_get_schema(base)
+
+  # check for Description table
+  ## if no table, stop
+
+  if(!table_name %in% schema$tables$name){
+    msg <- glue::glue("No table called {table_name} in base {base}.
+                      Please use air_create_description_table to create the descriptive
+                      metadata table or create it manually.")
+    stop(msg)
+  }
+
+  ## create empty update log list
+
+  update_log <- list(
+    fields_created = NA,
+    records_updated = NA,
+    records_inserted = NA,
+    records_deleted = NA
+  )
+
+
+  ## get table_id
+
+  table_id <- schema$tables[schema$tables$name == table_name,"id"]
+  table_pos <- which(schema$tables$id == table_id)
+  # get column names from schema because empty columns are pulled
+  table_columns <- schema$tables$fields[[table_pos]]$name
+  ## check columns
+  col_check <- !names(description) %in% table_columns
+
+  if(all(col_check)){
+    msg <- glue::glue("The description object and the metadata table in your base, {table_name}, share
+                      no fields.")
+    warning(msg)
+  }
+  #create any new fields from description
+  if(any(col_check)){
+    cols_to_create <- names(description)[col_check]
+
+    fields_created  <- air_create_field(base = base,
+                                        table_id = table_id,
+                                        name = cols_to_create)
+
+    message(fields_created)
+
+    update_log$fields_created  <- fields_created
+
+  }
+
+  # pull down current table
+
+  current_metadata_table <- fetch_all(base,table_name)
+  # convert to tibble for more consistent behavior in joins
+  current_metadata_table<- tibble::as_tibble(current_metadata_table)
+  current_metadata_table <- current_metadata_table |>
+                              dplyr::select(-createdTime)
+
+  # compare with updated values
+  ## use field ids
+  ## assumes a certain structure for metadata
+  min_fields <- unique(join_field,record_id_field)
+
+  min_update_df <- current_metadata_table[,min_fields]
+
+  records_to_update <- dplyr::inner_join(description,min_update_df,by = join_field )
 
   # update records
+
+  records_updated <- air_update_data_frame(base, table_name, records_to_update$id,records_to_update)
+
+  update_log$records_updated <- records_updated
+
+  # insert new records -- each table describes a single base so there should be
+  # no records to insert
+
+  records_to_insert <- dplyr::anti_join(description,min_update_df,by = join_field)
+
+  if(nrow(records_to_insert) > 0){
+    warning("Inserting a new record into the base. Check that the value in {join_field} matches
+            between current and updated description")
+  }
+
+  records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
+
+  update_log$records_inserted <- records_inserted
+
+
+  # drop records no longer in meta data
+
+  records_to_delete <- dplyr::anti_join(min_update_df,description,by = join_field)
+
+
+  if(nrow(records_to_delete) >0){
+    records_deleted <- purrr::map(records_to_delete$id, function(id){
+      air_delete(base, table_name,id)
+    })
+  } else {
+    records_deleted <- "No records deleted"
+  }
+
+  update_log$records_deleted <- records_deleted
+
+
+  return(update_log)
 
 }
 
@@ -415,7 +533,7 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
     tables$field_desc <- "unique id assigned by airtable"
     tables$field_type <- "singleLineText"
     tables$field_id <- NA
-    tables$field_opt_name <- NA
+    tables$field_opts <- NA
 
     str_metadata <- rbind(str_metadata,tables)
 
@@ -557,11 +675,13 @@ air_generate_metadata <- function(base, table_names,limit=1){
 #' @return data.frame with descriptive metadata.
 #' @export
 
-air_get_base_description_from_table<- function(base, table_name){
+air_get_base_description_from_table<- function(base, table_name,field_names_to_snakecase = TRUE){
   #fetch table
   desc_table <- airtabler::fetch_all(base,table_name)
   # to snake case
+  if(field_names_to_snakecase){
   names(desc_table) <- snakecase::to_snake_case(names(desc_table))
+  }
 
   required_fields <- c("title","primary_contact","email","description")
   if(all(required_fields %in% names(desc_table))){
@@ -570,7 +690,7 @@ air_get_base_description_from_table<- function(base, table_name){
 
     missing_rf <- required_fields[!required_fields %in% names(desc_table)]
 
-    desc_table[missing_rf] <- NA
+    desc_table[missing_rf] <- ""
     return(desc_table)
   }
 
@@ -893,7 +1013,7 @@ flatten_col_to_chr <- function(data_frame){
 #' @param output_dir String. Folder containing output files
 #' @param overwrite Logical. Should outputs be overwritten if they already exist?
 #'
-#' @return list. Returns the table_list object
+#' @return Vector of file paths
 #' @export
 air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE){
 
@@ -940,7 +1060,7 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 
   file.copy(from = outputs_list,to = output_dir_path_final,recursive = FALSE ,copy.mode = TRUE)
 
-  invisible(table_list)
+  return(list.files(output_dir_path_final,full.names = TRUE))
 
 }
 
