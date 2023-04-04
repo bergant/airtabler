@@ -1,0 +1,144 @@
+---
+title: "Generate-Metadata-and-Backup"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generate-Metadata-and-Backup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(airtabler)
+```
+
+This vignette will demonstrate how to generate and update metadata for an Airtable
+base using the [Airtable metadata api](https://airtable.com/developers/web/api/get-base-schema) then export the base to create an offline backup.  
+
+*Note* Make sure that you have the [environment variable](https://github.com/gaborcsardi/dotenv) `AIRTABLE_API_KEY` set with your [Airtable API token](https://airtable.com/create/tokens). Make sure your token has schema read and write priveleges. 
+
+## Creating metadata from schema 
+
+`air_generate_metadata_from_api` creates a data frame that holds the structural metadata for your base. Structural metadata describes how entities relate to one another, in this case, how fields relate to tables within the base. 
+
+
+```{r generate metadata}
+# set your base id
+base = "appVjIfAo8AJlfTkx"
+## create a list
+api_metadata <- air_generate_metadata_from_api(base = "appVjIfAo8AJlfTkx")
+str(api_metadata)
+```
+
+## Adding a metadata table to the base
+
+```{r add metadata table}
+status <- air_create_metadata_table(base = base,meta_data = api_metadata)
+```
+
+## Create a descriptive metadata table for the base
+
+The `description` table will describe who created the base, when, and why.
+Descriptive metadata is important for long term storage and reuse. The default
+terms in the `description` table match core DCMI terms. Additional terms can be
+added.
+
+```{r descriptive metadata}
+## create a basic descriptive metadata table
+
+description <- air_generate_base_description(title = "Base Title",
+                              creator = "Collin Schwantes",
+                              created = "2023-04-03",
+                              description = "This base is an example for airtabler")
+
+
+# We could have provided keywords as comma separated values but lets make things 
+# more interesting by presenting them as a vector
+description_with_keywords <- air_generate_base_description(title = "Base Title",
+                              creator = "Collin Schwantes",
+                              created = "2023-04-03",
+                              description = "This base is an example for airtabler",
+                              keywords = list(c("Example","R","Package","Airtable")))
+
+```
+
+## Add a description table to the base
+
+```{r add descriptive metadata}
+
+## add our vanilla description table - preferred way to work with description data
+air_create_description_table(base = base,description = description)
+
+
+## add our description with keywords and - we want keywords to be multiple select
+## Note this is not the preferred method but it is possible
+
+length(names(description_with_keywords))
+
+create_choices <- function(x){
+  
+  choice_list <- list()
+  
+   choice_list$choices <- purrr::map(x,function(x_item){
+             list(name = x_item)
+    })
+
+   return(list(choice_list)) # wrap in an extra list to 
+}
+
+keyword_options <- create_choices(description_with_keywords$keywords[[1]])
+
+air_create_description_table(base = base,description = description_with_keywords,
+                             type = c(rep("singleLineText",9),"multipleSelects"),
+                             options = c(rep(NA,9),keyword_options))
+
+
+```
+
+## Updating metadata tables
+
+Your data will change so your metadata should update as well.
+
+### Structural Metadata
+```{r update structural metadata}
+
+# get your metadata from the api
+ metadata <- air_generate_metadata_from_api(base = base)
+
+# run the function
+update_log  <- air_update_metadata_table(base,metadata)
+
+# the update log provides an overview of records that were updated, inserted, or deleted
+# and fields that were created in the event that the structure of your metadata table 
+# changed.
+
+```
+
+### Descriptive Metadata
+
+
+
+```{r update descriptive metadata}
+
+base_description <- air_get_base_description_from_table(base = base,table_name = "Description")
+
+base_description$description <- "updating the description to be more descriptive"
+
+air_update_description_table(base = base,description = base_description,table_name = "description")
+
+```
+
+
+## Using the metadata to create a backup
+
+
+
+
+
+

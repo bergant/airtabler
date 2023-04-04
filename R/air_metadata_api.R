@@ -44,13 +44,47 @@ type_option_map <-function(){
 
 }
 
+#' Template for for creating a table from a dataframe
+#'
+#' @param name
+#' @param description
+#' @param type
+#' @param options
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
 air_fields_df_template <- function(name,description, type, options = NA){
-  df <- data.frame(name = name,
-             description = description,
-             type = type,
-             options = options)
+  df <- tibble::tibble(name = name,
+                       description = description,
+                       type = type,
+                       options = options)
 
   return(df)
+}
+
+air_fields_list_from_template <- function(df){
+  ## create a list of field objects
+  purrr::pmap(df, function(name,
+                           type,
+                           description,
+                           options){
+
+    field_list <- list(name = name,
+                       type = type)
+
+    if(!is.na(description)){
+      field_list$description <- description
+    }
+
+    if(!all(is.na(options))){
+      field_list$options <- options
+    }
+    return(field_list)
+  })
+
 }
 
 #' Template for lists that describe tables in Airtable
@@ -94,14 +128,18 @@ air_table_template <- function(table_name, description, fields_df ){
 
   ## check that options have appropriate values - TODO
 
+  ## convert data frame to list of field objects for easier translation to JSON
+
+  fields_list <- air_fields_list_from_template(df = fields_df)
+
   ## create output
   table_list <- list(
     "name" =  table_name,
     "description" =  description,
-    "fields" = fields_df
+    "fields" = fields_list
   )
 
- return(table_list)
+  return(table_list)
 }
 
 #' A function to create new tables in a base

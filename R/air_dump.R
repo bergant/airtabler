@@ -249,7 +249,7 @@ air_create_description_table <- function(base,
 
 # update metadata table
 
-#' Update the descriptive metadata table
+#' Update the structural metadata table
 #'
 #' @param base String. Base id
 #' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
@@ -364,8 +364,9 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
 # update description table
 air_update_description_table <- function(base,description, table_name = "Description"){
-
   # check for description
+  current_description_table <- air_fetch(base,table_name)
+
   # update records
 
 }
@@ -562,7 +563,7 @@ air_get_base_description_from_table<- function(base, table_name){
   # to snake case
   names(desc_table) <- snakecase::to_snake_case(names(desc_table))
 
-  required_fields <- c("title","primary_contact","email","base_description")
+  required_fields <- c("title","primary_contact","email","description")
   if(all(required_fields %in% names(desc_table))){
     return(desc_table)
   } else {
@@ -622,7 +623,7 @@ air_generate_base_description <- function(title = NA,
                                           contributor = NA,
                                           identifier =NA,
                                           license = NA,...){
-  desc_table <- data.frame(title = title,
+  desc_table <- tibble::tibble(title = title,
                            creator= creator,
                            created=created,
                            primary_contact=primary_contact,
