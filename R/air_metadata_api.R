@@ -205,31 +205,39 @@ air_create_field <- function(base,
 
   field_df <- air_fields_df_template(name = name,description = description, type = type, options = options)
 
+
+  fields_list <- air_fields_list_from_template(field_df)
+
   "https://api.airtable.com/v0/meta/bases/{baseId}/tables/{tableId}/fields"
 
   request_url <- sprintf("%s/%s/tables/%s/fields", air_meta_url, base,table_id)
   request_url <- utils::URLencode(request_url)
 
-  fields_json <- jsonlite::toJSON(field_df,pretty = TRUE,auto_unbox = TRUE)
+  ## fields must be created one at a time
+  schema_list <- purrr::map(fields_list,function(field_item){
+    fields_json <- jsonlite::toJSON(field_item,pretty = TRUE,auto_unbox = TRUE)
 
-  # call service:
-  res <- httr::POST(
-    request_url,
-    httr::content_type("application/json"),
-    httr::add_headers(
-      Authorization = paste("Bearer", air_api_key())
-    ),
-    body = fields_json
-  )
+    # call service:
+    res <- httr::POST(
+      request_url,
+      httr::content_type("application/json"),
+      httr::add_headers(
+        Authorization = paste("Bearer", air_api_key())
+      ),
+      body = fields_json
+    )
 
-  air_validate(res)
-  # may need a new air_parse function
+    air_validate(res)
+    # may need a new air_parse function
 
-  res_content <- httr::content(res,as = "text")
+    res_content <- httr::content(res,as = "text")
 
-  schema <- jsonlite::fromJSON(res_content)
+    schema <- jsonlite::fromJSON(res_content)
 
-  return(schema)
+    return(schema)
+  })
+
+  return(schema_list)
 
 }
 
