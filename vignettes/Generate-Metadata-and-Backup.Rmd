@@ -126,19 +126,72 @@ update_log  <- air_update_metadata_table(base,metadata)
 
 ```{r update descriptive metadata}
 
-base_description <- air_get_base_description_from_table(base = base,table_name = "Description")
+base_description <- air_get_base_description_from_table(base = base,table_name = "Description",
+                                                        field_names_to_snakecase = FALSE)
 
-base_description$description <- "updating the description to be more descriptive"
+base_description$description <- "Keep on updating"
 
-air_update_description_table(base = base,description = base_description,table_name = "description")
+## since the field types are already established, its a little easier to add multipleSelect keywords
+base_description$keywords[[1]] <- append("New Keyword",base_description$keywords[[1]])
+
+base_description <- base_description |> 
+  dplyr::select(-createdTime)
+
+## if your base_description obj has a record id field, use that for the join. Default is title
+air_update_description_table(base = base,description = base_description,table_name = "Description",join_field = "id")
 
 ```
 
 
 ## Using the metadata to create a backup
 
+Now that you have your metadata tables setup, lets see how we can use them to
+create backups. The workflow pulls data down from airtable into R where it can
+be written to whatever format you like. There is a built in function for writing
+to versioned to CSVs. This is the recommended workflow for creating backups.
 
+### Pull all data into R 
 
+```{r dump to R}
 
+## pull down the metadata table from airtable 
+metadata <- air_get_metadata_from_table(base = base,table_name = "Meta Data",add_id_field = FALSE)
+
+airtable_base <- air_dump(base = base,metadata = metadata,description = base_description)
+
+summary(airtable_base)
+
+```
+
+### Create a set of versioned CSVs
+
+This function creates a folder with a unique ID based on a hash of the list
+passed to table_list. If the data in your base do not change, then the hash
+won't change and no new version of the data will be written. 
+
+```{r dump to csv}
+
+#  dump to csv
+air_dump_to_csv(table_list = airtable_base)
+
+# Make a change to the description table to show how hashing works
+base_description <- air_get_base_description_from_table(base = base,table_name = "Description",
+                                                        field_names_to_snakecase = FALSE)
+
+## since the field types are already established, its a little easier to add multipleSelect keywords
+base_description$keywords[[1]] <- append("How will the hash change?",base_description$keywords[[1]])
+
+base_description <- base_description |> 
+  dplyr::select(-createdTime)
+
+## if your base_description obj has a record id field, use that for the join. Default is title
+air_update_description_table(base = base,description = base_description,table_name = "Description",join_field = "id")
+
+## pull the changed based down
+airtable_base_updated <- air_dump(base = base,metadata = metadata,description = base_description)
+
+## dump to csv
+air_dump_to_csv(table_list = airtable_base_updated)
+```
 
 
