@@ -194,4 +194,60 @@ airtable_base_updated <- air_dump(base = base,metadata = metadata,description = 
 air_dump_to_csv(table_list = airtable_base_updated)
 ```
 
+## Backup all bases in a workspace
 
+*Note* This routine requires personal access tokens that can read and write 
+data and schema to all bases in a workspace. 
+
+Here we are going to take advantage of the [`list bases`](https://airtable.com/developers/web/api/list-bases) 
+endpoint in the airtable API. It will list all bases that a token has access to.
+
+```{r workspace backup}
+
+# get all bases associated with token
+bases <- air_list_bases()
+
+# generate the description for our second
+description_2 <- air_generate_base_description(title = bases$bases$name[[2]],creator = "Collin Schwantes",created = Sys.Date(),description = "A base to demo bulk backups")
+
+description_log <- air_create_description_table(bases$bases$id[[2]],description = description_2)
+
+metadata_2 <- air_generate_metadata_from_api(bases$bases$id[[2]])
+
+metadata_log <- air_create_metadata_table(bases$bases$id[[2]],meta_data = metadata_2)
+
+## add metadata and descriptive data to bases list
+
+base_descriptions <- purrr::map(bases$bases$id,function(base){
+  air_get_base_description_from_table(base,table_name = "Description")
+})
+
+
+base_metadata <- purrr::map(bases$bases$id,function(base){
+  air_get_metadata_from_table(base,table_name = "Meta Data")
+})
+
+
+bases$bases$description <-  base_descriptions
+bases$bases$metadata <-  base_metadata
+
+base_df <- bases$bases
+
+for(i in 1:nrow(base_df)){
+  base_item <- base_df[i,]
+  table_list <- air_dump(base = base_item$id ,metadata = base_item$metadata[[1]],description = base_item$description[[1]])
+ 
+  output_dir <- sprintf("Airtabler Workspace/%s", base_item$name)
+   air_dump_to_csv(table_list,output_dir = output_dir)
+}
+
+
+```
+
+## CSVs to Frictionless
+
+```{r csv dump to frictionless}
+
+```
+
+## Frictionless to deposits

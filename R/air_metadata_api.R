@@ -39,7 +39,7 @@ type_option_map <-function(){
   "https://airtable.com/developers/web/api/field-model"
 
   # time options are deeply nested
-
+ NULL
 
 
 }
@@ -239,6 +239,35 @@ air_create_field <- function(base,
 
   return(schema_list)
 
+}
+
+#' Get list of bases for an Token
+#'
+#' @return list
+#' @export
+#'
+#' @examples
+air_list_bases <- function(request_url = "https://api.airtable.com/v0/meta/bases"){
+
+  request_url <- utils::URLencode(request_url)
+
+
+  # call service:
+  res <- httr::GET(
+    request_url,
+    httr::add_headers(
+      Authorization = paste("Bearer", air_api_key())
+    )
+  )
+
+  air_validate(res)
+  # may need a new air_parse function
+
+  res_content <- httr::content(res,as = "text")
+
+  base_list <- jsonlite::fromJSON(res_content)
+
+  return(base_list)
 }
 
 
