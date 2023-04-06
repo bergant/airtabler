@@ -2,7 +2,8 @@
 #'
 #' Download an attachment stored in air tables. Returns original dataframe
 #' with an additional field called attachment_file_paths. The attachment_file_paths
-#' field is of class list so it can handle multiple attachments per record.
+#' field is of class list so it can handle multiple attachments per record. File
+#' paths are prepended with record ids so that all file names are unique.
 #'
 #' @param x Data frame. Output from air_get or fetch_all.
 #' @param field String. Name of field with file attachments in base
@@ -14,6 +15,21 @@
 #' @export air_download_attachments
 #'
 #' @examples
+#' \dontrun{
+#'
+#' base <- "appXXXXXXXXX"
+#' table_name <- "Table With Attachments"
+#'
+#' table_original  <- air_get(base,table_name)
+#'
+#' table_with_file_paths <- air_download_attachments(x = table_with_attachments,
+#'                         field = "attachment_field",
+#'                         dir_name = "downloads")
+#'
+#' table_with_file_paths$attachment_file_paths
+#'
+#' }
+#'
 air_download_attachments <- function(x, field, dir_name = "downloads",...){
   #browser()
 
