@@ -28,7 +28,7 @@ base using the [Airtable metadata api](https://airtable.com/developers/web/api/g
 `air_generate_metadata_from_api` creates a data frame that holds the structural metadata for your base. Structural metadata describes how entities relate to one another, in this case, how fields relate to tables within the base. 
 
 
-```{r generate metadata}
+```{r generate metadata, eval=FALSE}
 # set your base id
 base = "appVjIfAo8AJlfTkx"
 ## create a list
@@ -38,7 +38,7 @@ str(api_metadata)
 
 ## Adding a metadata table to the base
 
-```{r add metadata table}
+```{r add metadata table,  eval=FALSE}
 status <- air_create_metadata_table(base = base,meta_data = api_metadata)
 ```
 
@@ -49,11 +49,11 @@ Descriptive metadata is important for long term storage and reuse. The default
 terms in the `description` table match core DCMI terms. Additional terms can be
 added.
 
-```{r descriptive metadata}
+```{r descriptive metadata, eval=FALSE}
 ## create a basic descriptive metadata table
 
 description <- air_generate_base_description(title = "Base Title",
-                              creator = "Collin Schwantes",
+                              creator = "Arkady Darell",
                               created = "2023-04-03",
                               description = "This base is an example for airtabler")
 
@@ -61,7 +61,7 @@ description <- air_generate_base_description(title = "Base Title",
 # We could have provided keywords as comma separated values but lets make things 
 # more interesting by presenting them as a vector
 description_with_keywords <- air_generate_base_description(title = "Base Title",
-                              creator = "Collin Schwantes",
+                              creator = "Arkady Darell",
                               created = "2023-04-03",
                               description = "This base is an example for airtabler",
                               keywords = list(c("Example","R","Package","Airtable")))
@@ -70,7 +70,7 @@ description_with_keywords <- air_generate_base_description(title = "Base Title",
 
 ## Add a description table to the base
 
-```{r add descriptive metadata}
+```{r add descriptive metadata, eval=FALSE}
 
 ## add our vanilla description table - preferred way to work with description data
 air_create_description_table(base = base,description = description)
@@ -106,7 +106,7 @@ air_create_description_table(base = base,description = description_with_keywords
 Your data will change so your metadata should update as well.
 
 ### Structural Metadata
-```{r update structural metadata}
+```{r update structural metadata, eval=FALSE}
 
 # get your metadata from the api
  metadata <- air_generate_metadata_from_api(base = base)
@@ -124,7 +124,7 @@ update_log  <- air_update_metadata_table(base,metadata)
 
 
 
-```{r update descriptive metadata}
+```{r update descriptive metadata, eval=FALSE}
 
 base_description <- air_get_base_description_from_table(base = base,table_name = "Description",
                                                         field_names_to_snakecase = FALSE)
@@ -152,7 +152,7 @@ to versioned to CSVs. This is the recommended workflow for creating backups.
 
 ### Pull all data into R 
 
-```{r dump to R}
+```{r dump to R, eval=FALSE}
 
 ## pull down the metadata table from airtable 
 metadata <- air_get_metadata_from_table(base = base,table_name = "Meta Data",add_id_field = FALSE)
@@ -169,7 +169,7 @@ This function creates a folder with a unique ID based on a hash of the list
 passed to table_list. If the data in your base do not change, then the hash
 won't change and no new version of the data will be written. 
 
-```{r dump to csv}
+```{r dump to csv, eval=FALSE}
 
 #  dump to csv
 air_dump_to_csv(table_list = airtable_base)
@@ -202,13 +202,13 @@ data and schema to all bases in a workspace.
 Here we are going to take advantage of the [`list bases`](https://airtable.com/developers/web/api/list-bases) 
 endpoint in the airtable API. It will list all bases that a token has access to.
 
-```{r workspace backup}
+```{r workspace backup, eval=FALSE}
 
 # get all bases associated with token
 bases <- air_list_bases()
 
 # generate the description for our second
-description_2 <- air_generate_base_description(title = bases$bases$name[[2]],creator = "Collin Schwantes",created = Sys.Date(),description = "A base to demo bulk backups")
+description_2 <- air_generate_base_description(title = bases$bases$name[[2]],creator = "Arkady Darell",created = Sys.Date(),description = "A base to demo bulk backups")
 
 description_log <- air_create_description_table(bases$bases$id[[2]],description = description_2)
 
@@ -243,11 +243,3 @@ for(i in 1:nrow(base_df)){
 
 
 ```
-
-## CSVs to Frictionless
-
-```{r csv dump to frictionless}
-
-```
-
-## Frictionless to deposits
