@@ -14,7 +14,7 @@ air_dump_to_csv(table_list, output_dir = "outputs", overwrite = FALSE)
 \item{overwrite}{Logical. Should outputs be overwritten if they already exist?}
 }
 \value{
-list. Returns the table_list object
+Vector of file paths
 }
 \description{
 Saves data.frames from air_dump to csv files. File names are determined by

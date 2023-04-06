@@ -24,7 +24,7 @@ air_get(
 \item{table_name}{Table name}
 
 \item{record_id}{(optional) Use record ID argument to retrieve an existing
-record details}
+record details. See \url{https://airtable.com/developers/web/api/get-record}}
 
 \item{limit}{(optional) A limit on the number of records to be returned.
 Limit can range between 1 and 100.}
@@ -53,6 +53,10 @@ A data frame with records or a list with record details if
   \code{record_id} is specified.
 }
 \description{
+Retrieve records or a single record from a table. If you provide a record_id,
+you cannot specify fields, views, or filterFormulas.
+}
+\details{
 You can retrieve records in an order of a view by providing the name or ID of
 the view in the view query parameter. The results will include only records
 visible in the order they are displayed.

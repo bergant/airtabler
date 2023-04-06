@@ -4,7 +4,11 @@
 \alias{air_get_base_description_from_table}
 \title{Get base description from table}
 \usage{
-air_get_base_description_from_table(base, table_name)
+air_get_base_description_from_table(
+  base,
+  table_name,
+  field_names_to_snakecase = TRUE
+)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}

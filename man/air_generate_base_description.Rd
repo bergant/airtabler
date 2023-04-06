@@ -6,9 +6,14 @@
 \usage{
 air_generate_base_description(
   title = NA,
+  creator = NA,
+  created = NA,
   primary_contact = NA,
   email = NA,
-  base_description = NA,
+  description = NA,
+  contributor = NA,
+  identifier = NA,
+  license = NA,
   ...
 )
 }
@@ -16,19 +21,27 @@ air_generate_base_description(
 \item{title}{String. Title is a property that refers to the name or names by
 which a resource is formally known.}
 
+\item{creator}{String. Person or people who created the base}
+
 \item{primary_contact}{String.  Person or entity primarily responsible for
 making the content of a resource}
 
 \item{email}{String. Email of primary_contact}
 
-\item{base_description}{String. This property refers to the description of
+\item{description}{String. This property refers to the description of
 the content of a resource. The description is a potentially rich source of
 indexable terms and assist the users in their selection of an appropriate
 resource.}
 
+\item{contributor}{String. An entity responsible for making contributions to the resource.}
+
+\item{identifier}{String. An unambiguous reference to the resource within a given context.}
+
+\item{license}{String. A legal document giving official permission to do something with the resource. "CC BY 4.0"}
+
 \item{...}{String. Additional descriptive metadata elements. See details.
 Additional elements can be added as name pair values e.g.
-\code{license = "CC BY 4.0", is_part_of = "https://doi.org/10.48321/MyDMP01"}}
+\code{ isPartOf = "https://doi.org/00.00000/MyPaper01", isReferencedBy = "https://doi.org/10.48321/MyDMP01"}}
 }
 \value{
 data.frame with descriptive metadata
