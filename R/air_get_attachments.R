@@ -19,8 +19,19 @@
 #' @export air_get_attachments
 #'
 #' @examples
+#'
+#' \dontrun{
+#'
+#' base <- "appXXXXXXXXX"
+#' table_name <- "table with excel attachments"
+#'
+#'  table_with_attachments <- air_get_attachments(base,table_name, field = "attachment_field" )
+#'
+#' }
+#'
+#'
 air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, parse_all_sheets = FALSE, ...){
-  #browser()
+
   # get data
   x <- fetch_all(base,table_name,...)
 

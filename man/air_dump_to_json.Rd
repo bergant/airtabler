@@ -4,7 +4,13 @@
 \alias{air_dump_to_json}
 \title{Dump all tables from a base into json files}
 \usage{
-air_dump_to_json(base, metadata, description = NULL, add_missing_fields = TRUE)
+air_dump_to_json(
+  base,
+  metadata,
+  description = NULL,
+  output_dir = "outputs",
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
@@ -12,14 +18,13 @@ air_dump_to_json(base, metadata, description = NULL, add_missing_fields = TRUE)
 \item{metadata}{Data.frame.Data frame with structural metadata - describes relationship between tables and fields.}
 
 \item{description}{Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
-Can be left as NULL if base already contains a table called description.}
-
-\item{add_missing_fields}{Logical. If true add in missing fields}
+Can be left as NULL if base already contains a table called description}
 }
 \value{
 List of data.frames. All tables from metadata plus the
 description and metadata tables.
 }
 \description{
-Essentially air_get without converting to Rs
+Essentially air_get without converting to Rs. Does not add fields with empty
+values.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/air_dump.R
 \name{air_create_metadata_table}
 \alias{air_create_metadata_table}
-\title{Create a new metadata table in the base}
+\title{Create a new structural metadata table in the base}
 \usage{
 air_create_metadata_table(
   base,
@@ -30,5 +30,19 @@ air_create_metadata_table(
 List with outcome from creating the table and inserting the records
 }
 \description{
-Create a new metadata table in the base
+Create a new structural metadata table in the base
+}
+\examples{
+\dontrun{
+# set base id
+base <- "appXXXXXXXX"
+# create metadata from api
+metadata  <- air_generate_metadata_from_api(base)
+# add Meta Data table to base -- will not work if base already has a metadata
+# table
+log <- air_create_metadata_table(base,metadata)
+
+}
+
+
 }

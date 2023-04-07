@@ -23,6 +23,9 @@ air_update_metadata_table(
 
 \item{record_id_field}{String. Name of record id field. Like \code{id}}
 }
+\value{
+List. Log of results for updating metadata
+}
 \description{
 Update the structural metadata table
 }

@@ -24,3 +24,10 @@ Pull a table that has descriptive metadata.
 Requires the following fields:
 "title","primary_contact","email","base_description"
 }
+\examples{
+\dontrun{
+base <- "appXXXXXXXX"
+table_name <- "Description"
+air_get_base_description_from_table(base, table_name)
+}
+}

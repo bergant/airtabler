@@ -7,8 +7,15 @@
 air_list_bases(request_url = "https://api.airtable.com/v0/meta/bases")
 }
 \value{
-list
+list. List of bases a token can access.
 }
 \description{
 Get list of bases for an Token
+}
+\examples{
+
+\dontrun{
+air_list_bases()
+}
+
 }

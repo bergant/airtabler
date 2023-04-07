@@ -344,9 +344,8 @@ air_insert <- function(base, table_name, record_data) {
 #' allows you to add new options to select type fields.
 #'
 #' @return JSON with record data
-#' @export
+#' @export air_make_json
 #'
-#' @examples
 air_make_json <- function (base, table_name, record_data, record_id = NULL, method = "POST",typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
     return(air_insert_data_frame(base, table_name, record_data, typecast))
@@ -401,9 +400,8 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
 #' @param method String. One of "POST", "PATCH", or "DELETE"
 #'
 #' @return Status of HTTP request
-#' @export
+#' @export air_make_request
 #'
-#' @examples
 air_make_request <- function(base, table_name, json_record_data, record_id = NULL, method = c("POST","PATCH","DELETE")){
 
   if(method == "POST"){
@@ -484,9 +482,8 @@ air_insert_data_frame <- function(base, table_name, records,typecast) {
 #' @param records Dataframe. Values to update
 #'
 #' @return Status of HTTP request
-#' @export
+#' @export air_update_data_frame
 #'
-#' @examples
 air_update_data_frame <- function(base, table_name, record_ids, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])

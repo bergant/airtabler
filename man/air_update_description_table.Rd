@@ -29,3 +29,21 @@ list that logs updates
 \description{
 Update the descriptive metadata table in airtable
 }
+\examples{
+
+\dontrun{
+
+base <- "appXXXXXXXX"
+table_name <- "Description"
+# get description from table
+description  <- air_get_base_description_from_table(base, table_name)
+# update the identifier field
+description$identifier <- "fake.doi.xyz/029940"
+# update the table
+air_update_description_table(base,description)
+
+
+}
+
+
+}

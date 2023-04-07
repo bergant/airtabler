@@ -36,8 +36,8 @@ set_diff <- function(x,y){
   return(diff)
 }
 
-# add the metadata table to the base
-#' Create a new metadata table in the base
+
+#' Create a new structural metadata table in the base
 #'
 #' @param base String. Base id
 #' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
@@ -50,6 +50,18 @@ set_diff <- function(x,y){
 #' @export air_create_metadata_table
 #'
 #' @examples
+#'\dontrun{
+#' # set base id
+#' base <- "appXXXXXXXX"
+#' # create metadata from api
+#' metadata  <- air_generate_metadata_from_api(base)
+#' # add Meta Data table to base -- will not work if base already has a metadata
+#' # table
+#' log <- air_create_metadata_table(base,metadata)
+#'
+#'}
+#'
+#'
 air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  field_descriptions = NA,
                                       type = "singleLineText", options = NA){
 
@@ -257,8 +269,8 @@ air_create_description_table <- function(base,
 #' @param join_field String. Name of field to join new and current metadata. Likely \code{field_id}
 #' @param record_id_field String. Name of record id field. Like \code{id}
 #'
-#' @return
-#' @export
+#' @return List. Log of results for updating metadata
+#' @export air_update_metadata_table
 #'
 #' @examples
 #'\dontrun{
@@ -374,9 +386,25 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 #' @param record_id_field String. Name of the record id field
 #'
 #' @return list that logs updates
-#' @export
+#' @export air_update_description_table
 #'
 #' @examples
+#'
+#' \dontrun{
+#'
+#' base <- "appXXXXXXXX"
+#' table_name <- "Description"
+#' # get description from table
+#' description  <- air_get_base_description_from_table(base, table_name)
+#' # update the identifier field
+#' description$identifier <- "fake.doi.xyz/029940"
+#' # update the table
+#' air_update_description_table(base,description)
+#'
+#'
+#' }
+#'
+#'
 air_update_description_table <- function(base,description, table_name = "Description", join_field = "title", record_id_field = "id"){
 
 
@@ -544,6 +572,24 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 
 
 # pull data from api and populate metadata table
+#' Generate structural metadata from the api
+#'
+#' @param base String. Base id
+#' @param metadata_table_name String. Name of exisiting structural metadata table if it exists
+#' @param include_metadata_table Logical. Should the structural metadata table be included in the metadata?
+#'
+#' @return A data frame with metadata
+#' @export air_generate_metadata_from_api
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' base <- "appXXXXXXXX"
+#' metadata  <- air_generate_metadata_from_api(base)
+#'
+#' }
+
 air_generate_metadata_from_api <- function(base,
                                            metadata_table_name = "Meta Data",
                                            include_metadata_table = FALSE){
@@ -645,9 +691,8 @@ air_generate_metadata_from_api <- function(base,
 #' @export
 
 air_generate_metadata <- function(base, table_names,limit=1){
-  warning('Airtable does not return fields with empty values - "", false, or [].
-          It is better to create a specific metdata table and
-          parse that with air_get_metadata_*')
+  warning('For more complete results, use air_generate_metadata_from_api.
+  Airtable does not return fields with empty values - "", false, or [].')
   meta_data_table <- purrr::map_dfr(table_names,function(x){
     table_x <- airtabler::air_get(base,x,limit = limit )
     fields_x <- names(table_x)
@@ -673,8 +718,14 @@ air_generate_metadata <- function(base, table_names,limit=1){
 #' describes the base and provides attribution
 #'
 #' @return data.frame with descriptive metadata.
-#' @export
-
+#' @export air_get_base_description_from_table
+#'
+#' @examples
+#' \dontrun{
+#' base <- "appXXXXXXXX"
+#' table_name <- "Description"
+#' air_get_base_description_from_table(base, table_name)
+#' }
 air_get_base_description_from_table<- function(base, table_name,field_names_to_snakecase = TRUE){
   #fetch table
   desc_table <- airtabler::fetch_all(base,table_name)
@@ -912,9 +963,9 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
     }
   }
 
-  named_description_post <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
-
-  table_list[named_description_post][[1]]$created <- Sys.Date()
+#   named_description_post <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
+#
+#   table_list[named_description_post][[1]]$created <- Sys.Date()
 
   return(table_list)
 }
@@ -1069,78 +1120,85 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 
 #' Dump all tables from a base into json files
 #'
-#' Essentially air_get without converting to Rs
+#' Essentially air_get without converting to Rs. Does not add fields with empty
+#' values.
 #'
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
 #' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
-#' Can be left as NULL if base already contains a table called description.
-#' @param add_missing_fields Logical. If true add in missing fields
+#' Can be left as NULL if base already contains a table called description
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.
-#' @export
+#' @export air_dump_to_json
 #'
-air_dump_to_json <- function(base, metadata, description = NULL, add_missing_fields = TRUE){
-  #
-  #   names(metadata) <- snakecase::to_snake_case(names(metadata))
-  #
-  #   ## check for required fields
-  #   required_fields <- c("table_name","field_name")
-  #
-  #   if(!all(required_fields %in% names(metadata))){
-  #     stop(glue::glue("metadata table must contain the
-  #                     following fields: {required_fields}. Note
-  #                     that field names are converted to snakecase
-  #                     before check."))
-  #   }
-  #
-  #
-  #   base_table_names <- unique(metadata$table_name)
-  #
-  #   print(base_table_names)
-  #   table_list <- base_table_names |>
-  #     purrr::set_names() |>
-  #     purrr::map(function(x){
-  #       ## get fields from str_metadata
-  #
-  #       fields_exp <- metadata[metadata$table_name == x,"field_name"]
-  #
-  #       ## pull table - add check for blank tables
-  #       x_table <- airtabler::fetch_all(base,x)
-  #
-  #       if(!is.data.frame(x_table)){
-  #         x_table <- data.frame(id = character())
-  #       }
-  #
-  #       ## add in missing columns if any
-  #       fields_obs <- names(x_table)
-  #
-  #       # check if any discrepancy between metadata and table
-  #       fields_diff <- set_diff(fields_exp,fields_obs)
-  #       #browser()
-  #       if(!is.null(fields_diff)){
-  #         # check for fields in obs not in exp - error
-  #         obs_exp  <- setdiff(fields_obs,fields_exp)
-  #         ignore_fields <- c("id","createdTime")
-  #         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
-  #         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
-  #           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
-  #           missing_fields_glue <- paste(missing_fields, collapse = ", ")
-  #           stop(glue::glue('The metadata table is missing the following fields from table {x}:
-  #                           {missing_fields_glue}
-  #                           Please update the metadata table.https://airtable.com/{base}'))
-  #         }
-  #         # check for fields in exp and not in obs - append unless frictionless
-  #         if(add_missing_fields){
-  #           exp_obs <- setdiff(fields_exp,fields_obs)
-  #           x_table[exp_obs] <- list(character(0))
-  #         }
-  #       }
-  #
-  #       return(x_table)
-  #
-  #     })
+air_dump_to_json <- function(base, metadata, description = NULL, output_dir= "outputs", overwrite = FALSE){
+
+  names(metadata) <- snakecase::to_snake_case(names(metadata))
+
+  ## check for required fields
+  required_fields <- c("table_name")
+
+  if(!all(required_fields %in% names(metadata))){
+    stop(glue::glue("metadata table must contain the
+                    following field: {required_fields}. Note
+                    that field names are converted to snakecase
+                    before check."))
+  }
+
+
+  base_table_names <- unique(metadata$table_name)
+
+  print(base_table_names)
+
+  json_list <- base_table_names |>
+    purrr::set_names() |>
+    purrr::map(function(x){
+
+      ### no expected fields, just json
+      ### see air_make_json for refactor
+
+      x_json <- fetch_all_json(base,x)
+
+      return(x_json)
+
+    })
+
+  json_list$metadata <- jsonlite::toJSON(metadata)
+
+  # check for description table
+  named_description <- grepl(pattern = "description",x = names(json_list), ignore.case = TRUE)
+
+  if(!is.null(description)){
+    if(any(named_description)){
+      warning("Base has a description table and a description data.frame was supplied to
+              this function. Inserting description data.frame at $description. Table
+              extract may be overwritten.")
+    }
+    json_list$description <- jsonlite::toJSON(description)
+  }
+
+  ## does not add a description table if not present
+
+
+  ## write to files
+  output_id <- rlang::hash(json_list)
+
+  output_dir_path <- sprintf("%s/%s",output_dir,output_id)
+
+  dir.create(output_dir_path,recursive = TRUE)
+
+  purrr::walk2(json_list, names(json_list), function(x_table,y_table_name){
+
+    output_file_path  <- sprintf("%s/%s.json",output_dir_path,y_table_name)
+
+    jsonlite::write_json(x_table,path = output_file_path)
+  })
+
+  return(list.files(output_dir_path,full.names = TRUE))
+
+
+
 }
 
 

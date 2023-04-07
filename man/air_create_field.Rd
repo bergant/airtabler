@@ -32,3 +32,23 @@ description of newly created field as a list
 \description{
 See https://airtable.com/developers/web/api/create-field
 }
+\examples{
+\donotrun{
+base_schema <- air_get_schema(base)
+
+base_schema$tables
+
+air_create_field(base,table_id = base_schema$tables$id[[4]],
+                 name = "Has Nucleics",
+                 description = "Logical. Does this planet have nucleics?",
+                 type = "checkbox",
+                 options = list(
+                   list(
+                     "color"= "greenBright",
+                     "icon"= "check"
+                   )
+                 )
+)
+}
+
+}

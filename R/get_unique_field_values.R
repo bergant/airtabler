@@ -15,7 +15,6 @@
 #' @return vector of unique values
 #' @export
 #'
-#' @examples
 get_unique_field_values <- function(base,
                                     table_name,
                                     fields){

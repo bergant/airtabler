@@ -21,3 +21,50 @@ List with table name, description, and fields
 \description{
 Template for lists that describe tables in Airtable
 }
+\examples{
+
+#'\dontrun{
+base <- "appQ94sELAtFnXPxx"
+
+base_schema <- air_get_schema(base)
+
+tables<- base_schema$tables
+
+field_names <- c("Planet","Chapter","Book", "Known Inhabitants")
+
+field_desc <- c("Name of planet in Foundation Series",
+                "Chapters where planet is referenced",
+                "Books where planet is referenced",
+                "Characters mentioned as living on or being from that planet")
+
+field_types <- c("singleLineText",rep("multipleRecordLinks",3))
+
+field_options <- c(NA,list(
+  list(
+    linkedTableId = tables[tables$name == "Chapter","id"]
+  )
+),
+list(
+  list(
+    linkedTableId = tables[tables$name == "Book","id"]
+  )
+),
+list(
+  list(
+    linkedTableId = tables[tables$name == "Character","id"]
+  )
+)
+)
+
+field_df<- air_fields_df_template(name = field_names,
+                                  description = field_desc,
+                                  type = field_types,
+                                  options = field_options)
+
+table_list <- air_table_template(table_name = "Planet",description = "Planets of Foundation",fields_df = field_tables)
+
+air_create_table(base, table_list)
+}
+
+
+}

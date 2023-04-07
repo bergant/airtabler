@@ -46,3 +46,16 @@ named list of data frames
 \description{
 Get an attachment stored in air tables. For excel files, returns a named list.
 }
+\examples{
+
+\dontrun{
+
+base <- "appXXXXXXXXX"
+table_name <- "table with excel attachments"
+
+ table_with_attachments <- air_get_attachments(base,table_name, field = "attachment_field" )
+
+}
+
+
+}
