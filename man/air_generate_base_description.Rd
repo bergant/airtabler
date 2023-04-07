@@ -23,6 +23,8 @@ which a resource is formally known.}
 
 \item{creator}{String. Person or people who created the base}
 
+\item{created}{String. When was the base created?}
+
 \item{primary_contact}{String.  Person or entity primarily responsible for
 making the content of a resource}
 
@@ -47,7 +49,12 @@ Additional elements can be added as name pair values e.g.
 data.frame with descriptive metadata
 }
 \description{
-Creates a data.frame that describes the base.
+Creates a data.frame that describes the base. Descriptive metadata provides
+information about the base as a whole: who created it,
+why, when, where can data be accessed, keywords, what license governs data use, etc.
+Descriptive metadata facilitates data reuse by providing a point of contact for
+future users, as well as attributes that allow the data to be entered into searchable
+catalogs or archives.
 }
 \details{
 See  \href{https://www.dublincore.org/resources/userguide/creating_metadata/}{dublin core} for inspiration about additional attributes.
@@ -57,11 +64,11 @@ See  \href{https://www.dublincore.org/resources/userguide/creating_metadata/}{du
 air_generate_base_description(title = "My Awesome Base" ,
  primary_contact= "Base Creator/Maintainer",
  email = "email@example.com",
- base_description = "This base is used to contain my awesome data
+ base_description = "This base contains my awesome data
  from a project studying XXX in YYY. Data in the base were collected
  from 1900-01-01 to 1990-01-01 by researchers at Some Long Term Project.",
  is_part_of = "https://doi.org/10.48321/MyDMP01",
- is_part_of = "https://doi.org/10.5072/zenodo_sandbox.1062705"
+ isReferencedBy = "https://doi.org/10.5072/zenodo_sandbox.1062705"
  )
 
 }

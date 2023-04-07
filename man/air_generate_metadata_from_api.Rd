@@ -21,7 +21,15 @@ air_generate_metadata_from_api(
 A data frame with metadata
 }
 \description{
-Generate structural metadata from the api
+Structural metadata describes the contents of your base and how they are linked.
+The structural metadata are created from the base schema. The nested schema
+structure is flattened into a more user-friendly table which can then be
+inserted as a table into the base with \code{air_created_metadata_table} and/or
+used in a data export with \code{air_dump}.
+}
+\details{
+This function requires that the api token has the ability to read
+the base schema.
 }
 \examples{
 

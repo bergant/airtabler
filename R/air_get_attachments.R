@@ -1,6 +1,10 @@
 #' Get Airtable file attachments
 #'
-#' Get an attachment stored in air tables. For excel files, returns a named list.
+#' Extract the contents of an attachment stored in Airtable. Currently only setup
+#' to work with Excel files. Planned expansion to other file types.
+#' For excel files, returns a named list.
+#'
+#' @seealso \code{air_download_attachments}
 #'
 #' @param base String. ID for the base or app to be fetched
 #' @param table_name String. Name of the table to be fetched from the base

@@ -39,6 +39,9 @@ set_diff <- function(x,y){
 
 #' Create a new structural metadata table in the base
 #'
+#' @details Structural metadata describes the contents of your base and how they are linked. Structural
+#' metadata can largely be derived from the base schema.
+#'
 #' @param base String. Base id
 #' @param meta_data Data frame. Contains metadata records. From air_generate_metadata*
 #' @param table_name String. name of the metadata table. default is "Meta Data"
@@ -140,6 +143,12 @@ air_create_metadata_table <- function(base,meta_data,table_name = "Meta Data",  
 # add the description table to the base
 
 #' Create the descriptive metadata table for the base
+#'
+#' Descriptive metadata provides information about the base as a whole, who created it,
+#' why, when, where can data be accessed, keywords, what license governs data use, etc.
+#' Descriptive metadata facilitates data reuse by providing a point of contact for
+#' future users, as well as attributes that allow the data to be entered into searchable
+#' catalogs or archives.
 #'
 #' @details DCMI terms can be found here \url{https://www.dublincore.org/specifications/dublin-core/dcmi-terms/}
 #'
@@ -259,7 +268,6 @@ air_create_description_table <- function(base,
 
 }
 
-# update metadata table
 
 #' Update the structural metadata table
 #'
@@ -374,7 +382,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   return(update_log)
 }
 
-# update description table
+
 #' Update the description table
 #'
 #' Update the descriptive metadata table in airtable
@@ -518,7 +526,13 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 }
 
 
-#' Pull the metadata table from airtable
+#' Pull the metadata table from Airtable
+#'
+#' Airtable allows all users to access the metadata API.
+#' The recommended workflow for creating this table is to use
+#' air_generate_metadata_from_api to extract the structural metadata from the base
+#' schema and then use air_create_metadata_table to add the table to your
+#' base.
 #'
 #' For information about creating metadata tables in your base see the
 #' \href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
@@ -533,7 +547,7 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 #' column are converted to snake_case
 #'
 #' @return data.frame with metadata table
-#' @export
+#' @export air_get_metadata_from_table
 #'
 air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snakecase = TRUE){
   # get structural metadata table
@@ -571,8 +585,16 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 }
 
 
-# pull data from api and populate metadata table
 #' Generate structural metadata from the api
+#'
+#' Structural metadata describes the contents of your base and how they are linked.
+#' The structural metadata are created from the base schema. The nested schema
+#' structure is flattened into a more user-friendly table which can then be
+#' inserted as a table into the base with \code{air_created_metadata_table} and/or
+#' used in a data export with \code{air_dump}.
+#'
+#' @details This function requires that the api token has the ability to read
+#' the base schema.
 #'
 #' @param base String. Base id
 #' @param metadata_table_name String. Name of exisiting structural metadata table if it exists
@@ -674,6 +696,8 @@ air_generate_metadata_from_api <- function(base,
 
 #' Generated Metadata from table names
 #'
+#' Deprecated: Use \code{air_generate_metadata_from_api}
+#'
 #' Generates a structural metadata table - the metadata that
 #' describes how tables and fields fit together. Does not
 #' include field types.
@@ -688,10 +712,10 @@ air_generate_metadata_from_api <- function(base,
 #'  Code runs faster if fewer rows are pulled.
 #'
 #' @return data.frame with structural metadata.
-#' @export
+#' @export air_generate_metadata_from_tables
 
-air_generate_metadata <- function(base, table_names,limit=1){
-  warning('For more complete results, use air_generate_metadata_from_api.
+air_generate_metadata_from_tables <- function(base, table_names,limit=1){
+  warning('Deprecated: For more complete results, use air_generate_metadata_from_api.
   Airtable does not return fields with empty values - "", false, or [].')
   meta_data_table <- purrr::map_dfr(table_names,function(x){
     table_x <- airtabler::air_get(base,x,limit = limit )
@@ -711,11 +735,12 @@ air_generate_metadata <- function(base, table_names,limit=1){
 #'
 #' Pull a table that has descriptive metadata.
 #' Requires the following fields:
-#' "title","primary_contact","email","base_description"
+#' "title","primary_contact","email","description"
 #'
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param table_name String. Name of descriptive metadata table - the metadata that
 #' describes the base and provides attribution
+#' @param field_names_to_snakecase Logical. Should field names be converted to snakecase?
 #'
 #' @return data.frame with descriptive metadata.
 #' @export air_get_base_description_from_table
@@ -749,7 +774,12 @@ air_get_base_description_from_table<- function(base, table_name,field_names_to_s
 
 #' Generate descriptive metadata
 #'
-#' Creates a data.frame that describes the base.
+#' Creates a data.frame that describes the base. Descriptive metadata provides
+#' information about the base as a whole: who created it,
+#' why, when, where can data be accessed, keywords, what license governs data use, etc.
+#' Descriptive metadata facilitates data reuse by providing a point of contact for
+#' future users, as well as attributes that allow the data to be entered into searchable
+#' catalogs or archives.
 #'
 #' @details See  \href{https://www.dublincore.org/resources/userguide/creating_metadata/}{dublin core} for inspiration about additional attributes.
 #'
@@ -769,6 +799,7 @@ air_get_base_description_from_table<- function(base, table_name,field_names_to_s
 #' @param ... String. Additional descriptive metadata elements. See details.
 #' Additional elements can be added as name pair values e.g.
 #' \code{ isPartOf = "https://doi.org/00.00000/MyPaper01", isReferencedBy = "https://doi.org/10.48321/MyDMP01"}
+#' @param created String. When was the base created?
 #'
 #' @return data.frame with descriptive metadata
 #' @export
@@ -778,11 +809,11 @@ air_get_base_description_from_table<- function(base, table_name,field_names_to_s
 #' air_generate_base_description(title = "My Awesome Base" ,
 #'  primary_contact= "Base Creator/Maintainer",
 #'  email = "email@@example.com",
-#'  base_description = "This base is used to contain my awesome data
+#'  base_description = "This base contains my awesome data
 #'  from a project studying XXX in YYY. Data in the base were collected
 #'  from 1900-01-01 to 1990-01-01 by researchers at Some Long Term Project.",
 #'  is_part_of = "https://doi.org/10.48321/MyDMP01",
-#'  is_part_of = "https://doi.org/10.5072/zenodo_sandbox.1062705"
+#'  isReferencedBy = "https://doi.org/10.5072/zenodo_sandbox.1062705"
 #'  )
 #'
 air_generate_base_description <- function(title = NA,
@@ -1127,6 +1158,8 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 #' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
 #' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 #' Can be left as NULL if base already contains a table called description
+#' @param output_dir String. Where should json files be saved?
+#' @param overwrite  Logical. If data are not unique, should files be overwritten?
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.

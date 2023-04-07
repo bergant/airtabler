@@ -24,7 +24,9 @@ Imports:
     snakecase,
     tidyselect,
     rlang,
-    stringr
+    stringr,
+    tibble,
+    deposits
 RoxygenNote: 7.2.1
 Suggests: 
     knitr,

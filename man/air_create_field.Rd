@@ -33,7 +33,7 @@ description of newly created field as a list
 See https://airtable.com/developers/web/api/create-field
 }
 \examples{
-\donotrun{
+\dontrun{
 base_schema <- air_get_schema(base)
 
 base_schema$tables

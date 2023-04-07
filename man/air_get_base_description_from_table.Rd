@@ -15,6 +15,8 @@ air_get_base_description_from_table(
 
 \item{table_name}{String. Name of descriptive metadata table - the metadata that
 describes the base and provides attribution}
+
+\item{field_names_to_snakecase}{Logical. Should field names be converted to snakecase?}
 }
 \value{
 data.frame with descriptive metadata.
@@ -22,7 +24,7 @@ data.frame with descriptive metadata.
 \description{
 Pull a table that has descriptive metadata.
 Requires the following fields:
-"title","primary_contact","email","base_description"
+"title","primary_contact","email","description"
 }
 \examples{
 \dontrun{

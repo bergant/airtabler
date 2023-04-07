@@ -19,6 +19,10 @@ air_dump_to_json(
 
 \item{description}{Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 Can be left as NULL if base already contains a table called description}
+
+\item{output_dir}{String. Where should json files be saved?}
+
+\item{overwrite}{Logical. If data are not unique, should files be overwritten?}
 }
 \value{
 List of data.frames. All tables from metadata plus the

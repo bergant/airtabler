@@ -6,13 +6,13 @@
 #' @section Using Metadata API:
 #' Metadata api is currently available to all users.
 #'
-#' @param base Airtable base ID
-#' @param ... additional paramters
+#' @param base String. Airtable base ID
+#' @param ... reserved for additional parameters
 #'
 #' @return list of schema
 #' @export air_get_schema
 
-air_get_schema <-  function(base,...){
+air_get_schema <-  function(base, ...){
   request_url <- sprintf("%s/%s/tables", air_meta_url, base)
   request_url <- utils::URLencode(request_url)
 
@@ -36,6 +36,7 @@ air_get_schema <-  function(base,...){
 
 type_option_map <-function(){
 
+  # will be used to  validate options provided to different field types
   "https://airtable.com/developers/web/api/field-model"
 
   # time options are deeply nested
@@ -97,7 +98,9 @@ type_option_map <-function(){
 #'                                   type = field_types,
 #'                                   options = field_options)
 #'
-#' table_list <- air_table_template(table_name = "Planet",description = "Planets of Foundation",fields_df = field_tables)
+#' table_list <- air_table_template(table_name = "Planet",
+#'                                   description = "Planets of Foundation",
+#'                                   fields_df = field_tables)
 #'
 #' air_create_table(base, table_list)
 #'}
@@ -196,7 +199,7 @@ air_fields_list_from_template <- function(df){
 #'
 #' @examples
 #'
-#' #'\dontrun{
+#' \dontrun{
 #' base <- "appQ94sELAtFnXPxx"
 #'
 #' base_schema <- air_get_schema(base)
@@ -234,7 +237,9 @@ air_fields_list_from_template <- function(df){
 #'                                   type = field_types,
 #'                                   options = field_options)
 #'
-#' table_list <- air_table_template(table_name = "Planet",description = "Planets of Foundation",fields_df = field_tables)
+#' table_list <- air_table_template(table_name = "Planet",
+#'                                  description = "Planets of Foundation",
+#'                                  fields_df = field_tables)
 #'
 #' air_create_table(base, table_list)
 #'}
@@ -297,7 +302,7 @@ air_table_template <- function(table_name, description, fields_df ){
 #'
 #' @examples
 #'
-#' #'\dontrun{
+#' \dontrun{
 #' base <- "appQ94sELAtFnXPxx"
 #'
 #' base_schema <- air_get_schema(base)
@@ -335,10 +340,13 @@ air_table_template <- function(table_name, description, fields_df ){
 #'                                   type = field_types,
 #'                                   options = field_options)
 #'
-#' table_list <- air_table_template(table_name = "Planet",description = "Planets of Foundation",fields_df = field_tables)
+#' table_list <- air_table_template(table_name = "Planet",
+#'                                  description = "Planets of Foundation",
+#'                                  fields_df = field_tables)
 #'
 #' air_create_table(base, table_list)
-#'}
+#'
+#' }
 air_create_table <- function(base, table_list){
   request_url <- sprintf("%s/%s/tables", air_meta_url, base)
   request_url <- utils::URLencode(request_url)
@@ -380,7 +388,7 @@ air_create_table <- function(base, table_list){
 #' @export air_create_field
 #'
 #' @examples
-#'\donotrun{
+#' \dontrun{
 #' base_schema <- air_get_schema(base)
 #'
 #' base_schema$tables
@@ -444,6 +452,11 @@ air_create_field <- function(base,
 }
 
 #' Get list of bases for an Token
+#'
+#' Each token you provisision is given access to a certain set of bases or
+#' workspaces. This function lists all bases associated with a token.
+#'
+#' @param request_url String. URL for api endpoint
 #'
 #' @return list. List of bases a token can access.
 #' @export air_list_bases

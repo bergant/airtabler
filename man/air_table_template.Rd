@@ -23,7 +23,7 @@ Template for lists that describe tables in Airtable
 }
 \examples{
 
-#'\dontrun{
+\dontrun{
 base <- "appQ94sELAtFnXPxx"
 
 base_schema <- air_get_schema(base)
@@ -61,7 +61,9 @@ field_df<- air_fields_df_template(name = field_names,
                                   type = field_types,
                                   options = field_options)
 
-table_list <- air_table_template(table_name = "Planet",description = "Planets of Foundation",fields_df = field_tables)
+table_list <- air_table_template(table_name = "Planet",
+                                 description = "Planets of Foundation",
+                                 fields_df = field_tables)
 
 air_create_table(base, table_list)
 }

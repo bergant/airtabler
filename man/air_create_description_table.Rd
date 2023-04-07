@@ -30,7 +30,11 @@ air_create_description_table(
 List. Outputs from creating the table and inserting the records
 }
 \description{
-Create the descriptive metadata table for the base
+Descriptive metadata provides information about the base as a whole, who created it,
+why, when, where can data be accessed, keywords, what license governs data use, etc.
+Descriptive metadata facilitates data reuse by providing a point of contact for
+future users, as well as attributes that allow the data to be entered into searchable
+catalogs or archives.
 }
 \details{
 DCMI terms can be found here \url{https://www.dublincore.org/specifications/dublin-core/dcmi-terms/}

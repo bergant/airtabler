@@ -6,11 +6,15 @@
 \usage{
 air_list_bases(request_url = "https://api.airtable.com/v0/meta/bases")
 }
+\arguments{
+\item{request_url}{String. URL for api endpoint}
+}
 \value{
 list. List of bases a token can access.
 }
 \description{
-Get list of bases for an Token
+Each token you provisision is given access to a certain set of bases or
+workspaces. This function lists all bases associated with a token.
 }
 \examples{
 

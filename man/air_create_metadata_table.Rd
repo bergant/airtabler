@@ -32,6 +32,10 @@ List with outcome from creating the table and inserting the records
 \description{
 Create a new structural metadata table in the base
 }
+\details{
+Structural metadata describes the contents of your base and how they are linked. Structural
+metadata can largely be derived from the base schema.
+}
 \examples{
 \dontrun{
 # set base id
