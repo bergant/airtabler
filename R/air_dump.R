@@ -844,6 +844,7 @@ air_generate_base_description <- function(title = NA,
 #'
 #' @param base String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'
 #' @param metadata Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
+#' Can be left as NULL if base already contains a table called meta data.
 #' @param description Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 #' Can be left as NULL if base already contains a table called description.
 #' @param add_missing_fields Logical. Should fields described in the metadata data.frame be added to corresponding tables?
@@ -862,7 +863,27 @@ air_generate_base_description <- function(title = NA,
 #' @note To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
 #' tidyr::unnest for expanding list columns.
 #'
-air_dump <- function(base, metadata, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL, field_names_to_snakecase = TRUE,...){
+air_dump <- function(base, metadata= NULL, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL, field_names_to_snakecase = TRUE,...){
+
+  # if metadata is null, check schema for metadata data table,
+  if(is.null(metadata)){
+    message("No metadata provided. Metadata will be retrieved from the metadata
+            table or generated via API")
+    #get schema
+    base_schema <- air_get_schema(base)
+    # look for meta data table
+    table_names <- schema$tables$name
+
+    metadata_check <- grepl("meta data",table_names,ignore.case = TRUE)
+
+    if(any(metadata_check)){
+      message("Retreiving metadata from table")
+      metadata <- fetch_all(base = base,table_name = table_names[metadata_check])
+    } else {
+      message("Generating metadata from api with air_generate_metadta_from_api")
+      metadata <- air_generate_metadata_from_api(base = base)
+    }
+  }
 
   names(metadata) <- snakecase::to_snake_case(names(metadata))
 
@@ -888,6 +909,10 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
 
       fields_exp <- metadata[metadata$table_name == x,"field_name"]
 
+      if(field_names_to_snakecase){
+        fields_exp <- snakecase::to_snake_case(fields_exp)
+      }
+
       ## pull table - add check for blank tables
       x_table <- airtabler::fetch_all(base,x)
 
@@ -912,10 +937,13 @@ air_dump <- function(base, metadata, description = NULL, add_missing_fields = TR
         ignore_fields_pattern <- paste(ignore_fields,collapse = "|")
         if(length(obs_exp) != 0 & !all(obs_exp %in% ignore_fields)){
           missing_fields <- obs_exp[!grepl(ignore_fields_pattern,obs_exp,ignore.case = FALSE)]
-          missing_fields_glue <- paste(missing_fields, collapse = ", ")
+          missing_fields_glue <- paste(missing_fields, collapse = "\n")
           stop(glue::glue('The metadata table is missing the following fields from table {x}:
+
                           {missing_fields_glue}
-                          Please update the metadata table.https://airtable.com/{base}'))
+
+                          Please update the metadata table via R with air_update_metadata_table
+                          or manually at https://airtable.com/{base}'))
         }
         # check for fields in exp and not in obs - append unless frictionless
         if(add_missing_fields){
