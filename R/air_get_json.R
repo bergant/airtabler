@@ -80,6 +80,14 @@ air_get_json <- function(base, table_name,
 #'
 #' @examples
 #'
+#' \dontrun{
+#' base <- "appXXXXXXX"
+#' table_name <- "My Table"
+#'
+#' fetch_all_json(base, table_name)
+#'
+#' }
+#'
 fetch_all_json <- function(base, table_name, ...) {
   out <- list()
   out[[1]] <- air_get_json(base, table_name, combined_result = FALSE,...)

@@ -19,3 +19,14 @@ json as string
 \description{
 Get the full outputs of a table as single json object
 }
+\examples{
+
+\dontrun{
+base <- "appXXXXXXX"
+table_name <- "My Table"
+
+fetch_all_json(base, table_name)
+
+}
+
+}

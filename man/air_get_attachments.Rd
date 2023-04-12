@@ -44,5 +44,23 @@ Should be one of: excel}
 named list of data frames
 }
 \description{
-Get an attachment stored in air tables. For excel files, returns a named list.
+Extract the contents of an attachment stored in Airtable. Currently only setup
+to work with Excel files. Planned expansion to other file types.
+For excel files, returns a named list.
+}
+\examples{
+
+\dontrun{
+
+base <- "appXXXXXXXXX"
+table_name <- "table with excel attachments"
+
+ table_with_attachments <- air_get_attachments(base,table_name, field = "attachment_field" )
+
+}
+
+
+}
+\seealso{
+\code{air_download_attachments}
 }

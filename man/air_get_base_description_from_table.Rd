@@ -4,13 +4,19 @@
 \alias{air_get_base_description_from_table}
 \title{Get base description from table}
 \usage{
-air_get_base_description_from_table(base, table_name)
+air_get_base_description_from_table(
+  base,
+  table_name,
+  field_names_to_snakecase = TRUE
+)
 }
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
 
 \item{table_name}{String. Name of descriptive metadata table - the metadata that
 describes the base and provides attribution}
+
+\item{field_names_to_snakecase}{Logical. Should field names be converted to snakecase?}
 }
 \value{
 data.frame with descriptive metadata.
@@ -18,5 +24,12 @@ data.frame with descriptive metadata.
 \description{
 Pull a table that has descriptive metadata.
 Requires the following fields:
-"title","primary_contact","email","base_description"
+"title","primary_contact","email","description"
+}
+\examples{
+\dontrun{
+base <- "appXXXXXXXX"
+table_name <- "Description"
+air_get_base_description_from_table(base, table_name)
+}
 }

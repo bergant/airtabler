@@ -6,3 +6,5 @@
 ^IMG$
 ^readme_cache$
 ^\.travis\.yml$
+^doc$
+^Meta$

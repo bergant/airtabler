@@ -6,7 +6,7 @@
 \usage{
 air_dump(
   base,
-  metadata,
+  metadata = NULL,
   description = NULL,
   add_missing_fields = TRUE,
   download_attachments = TRUE,
@@ -18,7 +18,8 @@ air_dump(
 \arguments{
 \item{base}{String. ID for your base from Airtable. Generally 'appXXXXXXXXXXXXXX'}
 
-\item{metadata}{Data.frame.Data frame with structural metadata - describes relationship between tables and fields.}
+\item{metadata}{Data.frame.Data frame with structural metadata - describes relationship between tables and fields.
+Can be left as NULL if base already contains a table called meta data.}
 
 \item{description}{Data.frame. Data frame with descriptive metadata - describes whats in your base and who made it.
 Can be left as NULL if base already contains a table called description.}

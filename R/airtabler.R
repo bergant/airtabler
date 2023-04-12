@@ -7,8 +7,8 @@
 #'   and check the API on \url{http://airtable.com/api}.
 #'
 #' @section API key:
-#'   Generate the airtable API key from your Airtable account page
-#'   (http://airtable.com/account).
+#'   Generate the Airtable API token from your Airtable account page
+#'   (http://airtable.com/create/tokens).
 #'
 #'   \pkg{airtabler} functions will read the API key from
 #'   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
@@ -18,6 +18,14 @@
 #'   \code{AIRTABLE_API_KEY=************}
 #'
 #'   To check where your R home is, try \code{normalizePath("~")}.
+#'
+#'   The \pkg{usethis} and \pkg{dotenv} packages are useful for setting environment
+#'   variables.
+#'    \code{usethis::edit_r_environ} allow you to modify the \code{.Renviron} file.
+#'    \code{dotenv::load_dot_env} allows you to load environment variables from a
+#'    \code{.env} file. This second approach is especially helpful if you work
+#'    with multiple tokens.
+#'
 #' @section Usage:
 #'   Use \code{\link{airtable}} function to get airtable base object
 #'   or just call primitives \code{\link{air_get}}, \code{\link{air_insert}},
@@ -31,6 +39,8 @@ NULL
 air_url <- "https://api.airtable.com/v0"
 air_meta_url <- "https://api.airtable.com/v0/meta/bases"
 
+# consider consolidating keys as the API key is now a token that can access
+# the metadata api
 air_api_key <- function() {
   key <- Sys.getenv("AIRTABLE_API_KEY")
   if(key == "") {
@@ -39,6 +49,7 @@ air_api_key <- function() {
   key
 }
 
+# consider
 air_secret_key <- function(){
   key <- Sys.getenv("AIRTABLE_SECRET_KEY")
   if(key == "") {
@@ -50,14 +61,17 @@ air_secret_key <- function(){
 
 #' Get a list of records or retrieve a single
 #'
-#' You can retrieve records in an order of a view by providing the name or ID of
+#' Retrieve records or a single record from a table. If you provide a record_id,
+#' you cannot specify fields, views, or filterFormulas.
+#'
+#'You can retrieve records in an order of a view by providing the name or ID of
 #' the view in the view query parameter. The results will include only records
 #' visible in the order they are displayed.
 #'
 #' @param base Airtable base
 #' @param table_name Table name
 #' @param record_id (optional) Use record ID argument to retrieve an existing
-#'   record details
+#'   record details. See \url{https://airtable.com/developers/web/api/get-record}
 #' @param limit (optional) A limit on the number of records to be returned.
 #'   Limit can range between 1 and 100.
 #' @param offset (optional) Page offset returned by the previous list-records
@@ -338,9 +352,8 @@ air_insert <- function(base, table_name, record_data) {
 #' allows you to add new options to select type fields.
 #'
 #' @return JSON with record data
-#' @export
+#' @export air_make_json
 #'
-#' @examples
 air_make_json <- function (base, table_name, record_data, record_id = NULL, method = "POST",typecast = TRUE){
   if (inherits(record_data, "data.frame")) {
     return(air_insert_data_frame(base, table_name, record_data, typecast))
@@ -395,9 +408,8 @@ air_make_json <- function (base, table_name, record_data, record_id = NULL, meth
 #' @param method String. One of "POST", "PATCH", or "DELETE"
 #'
 #' @return Status of HTTP request
-#' @export
+#' @export air_make_request
 #'
-#' @examples
 air_make_request <- function(base, table_name, json_record_data, record_id = NULL, method = c("POST","PATCH","DELETE")){
 
   if(method == "POST"){
@@ -478,9 +490,8 @@ air_insert_data_frame <- function(base, table_name, records,typecast) {
 #' @param records Dataframe. Values to update
 #'
 #' @return Status of HTTP request
-#' @export
+#' @export air_update_data_frame
 #'
-#' @examples
 air_update_data_frame <- function(base, table_name, record_ids, records) {
   lapply(seq_len(nrow(records)), function(i) {
     record_data <- as.list(records[i,])

@@ -1,6 +1,10 @@
 #' Get Airtable file attachments
 #'
-#' Get an attachment stored in air tables. For excel files, returns a named list.
+#' Extract the contents of an attachment stored in Airtable. Currently only setup
+#' to work with Excel files. Planned expansion to other file types.
+#' For excel files, returns a named list.
+#'
+#' @seealso \code{air_download_attachments}
 #'
 #' @param base String. ID for the base or app to be fetched
 #' @param table_name String. Name of the table to be fetched from the base
@@ -19,8 +23,19 @@
 #' @export air_get_attachments
 #'
 #' @examples
+#'
+#' \dontrun{
+#'
+#' base <- "appXXXXXXXXX"
+#' table_name <- "table with excel attachments"
+#'
+#'  table_with_attachments <- air_get_attachments(base,table_name, field = "attachment_field" )
+#'
+#' }
+#'
+#'
 air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, parse_all_sheets = FALSE, ...){
-  #browser()
+
   # get data
   x <- fetch_all(base,table_name,...)
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/air_dump.R
 \name{air_get_metadata_from_table}
 \alias{air_get_metadata_from_table}
-\title{Pull the metadata table from airtable}
+\title{Pull the metadata table from Airtable}
 \usage{
 air_get_metadata_from_table(
   base,
@@ -26,9 +26,15 @@ column are converted to snake_case}
 data.frame with metadata table
 }
 \description{
-For information about creating metadata tables in your base see the
-\href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
+Airtable allows all users to access the metadata API.
+The recommended workflow for creating this table is to use
+air_generate_metadata_from_api to extract the structural metadata from the base
+schema and then use air_create_metadata_table to add the table to your
+base.
 }
 \details{
+For information about creating metadata tables in your base see the
+\href{https://ecohealthalliance.github.io/eha-ma-handbook/8-airtable.html#managing-data}{EHA MA Handbook}
+
 Requires the following fields: table_name, field_name
 }
