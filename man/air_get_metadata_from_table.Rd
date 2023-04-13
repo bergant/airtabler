@@ -7,7 +7,7 @@
 air_get_metadata_from_table(
   base,
   table_name,
-  add_id_field = TRUE,
+  add_id_field = FALSE,
   field_names_to_snakecase = TRUE
 )
 }

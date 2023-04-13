@@ -82,8 +82,21 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
 
       dest <- sprintf("%s/%s_%s", dir_name,x$id,x$filename)
 
+      # sometimes the same file is attached multiple times
+      # if the file is already downloaded, don't add it again
+      # each attachment gets a unique id, so if the file changes,
+      # that id changes
+
+
+      if(all(file.exists(dest))){
+
+        not_downloaded_message <- glue::glue("\nFile already exists, not downloaded\n{dest}\n")
+        print(not_downloaded_message)
+        return(dest)
+      }
+
        a <- utils::download.file(url = x$url,destfile = dest)
-       #print(a)
+       print(a)
 
       return(dest)
     })
