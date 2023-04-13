@@ -7,7 +7,8 @@
 air_generate_metadata_from_api(
   base,
   metadata_table_name = "Meta Data",
-  include_metadata_table = FALSE
+  include_metadata_table = FALSE,
+  field_names_to_snake_case = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ air_generate_metadata_from_api(
 \item{metadata_table_name}{String. Name of exisiting structural metadata table if it exists}
 
 \item{include_metadata_table}{Logical. Should the structural metadata table be included in the metadata?}
+
+\item{field_names_to_snake_case}{Logical. Should the field names in the metadata table be snake_case?}
 }
 \value{
 A data frame with metadata
