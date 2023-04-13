@@ -311,6 +311,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
   #create any new fields from meta_data
 
+  message("creating log")
   update_log <- list(
     fields_created = NA,
     records_updated = NA,
@@ -318,6 +319,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
     records_deleted = NA
   )
 
+  message("checking if any fields need to be added")
   col_check <- !names(meta_data) %in% names(current_metadata_table)
 
   if(all(col_check)){
@@ -327,6 +329,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   }
 
   if(any(col_check)){
+    message("creating missing fields")
     cols_to_create <- names(meta_data)[col_check]
 
     fields_created  <- air_create_field(base = base,
@@ -341,7 +344,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
   # compare with updated values
   ## use field ids
-
+  message("checking which fields need to be updated")
   ## assumes a certain structure for metadata
 
   min_update_df <- current_metadata_table[,c(join_field,record_id_field)]
@@ -349,13 +352,13 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   records_to_update <- dplyr::inner_join(meta_data,min_update_df,by = join_field )
 
   # update records
-
+  message("updating records")
   records_updated <- air_update_data_frame(base, table_name, records_to_update$id,records_to_update)
 
   update_log$records_updated <- records_updated
 
   # insert new records
-
+  message("added new records")
   records_to_insert <- dplyr::anti_join(meta_data,min_update_df,by = join_field)
 
   records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
@@ -364,6 +367,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
 
   # drop records no longer in meta data
+  message("deleting records do longer in the base")
 
   records_to_delete <- dplyr::anti_join(min_update_df,meta_data,by = join_field)
 
