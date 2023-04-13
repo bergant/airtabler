@@ -555,7 +555,7 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 #' @return data.frame with metadata table
 #' @export air_get_metadata_from_table
 #'
-air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snakecase = TRUE){
+air_get_metadata_from_table <- function(base, table_name, add_id_field = FALSE, field_names_to_snakecase = TRUE){
   # get structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name)
 

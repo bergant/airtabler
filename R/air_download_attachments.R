@@ -83,7 +83,7 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
       dest <- sprintf("%s/%s_%s", dir_name,x$id,x$filename)
 
        a <- utils::download.file(url = x$url,destfile = dest)
-       print(a)
+       #print(a)
 
       return(dest)
     })
