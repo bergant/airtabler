@@ -599,6 +599,7 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 #' @param base String. Base id
 #' @param metadata_table_name String. Name of exisiting structural metadata table if it exists
 #' @param include_metadata_table Logical. Should the structural metadata table be included in the metadata?
+#' @param field_names_to_snake_case Logical. Should the field names in the metadata table be snake_case?
 #'
 #' @return A data frame with metadata
 #' @export air_generate_metadata_from_api
@@ -614,7 +615,8 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 
 air_generate_metadata_from_api <- function(base,
                                            metadata_table_name = "Meta Data",
-                                           include_metadata_table = FALSE){
+                                           include_metadata_table = FALSE,
+                                           field_names_to_snake_case = TRUE){
 
   # get base schema
   schema <- air_get_schema(base)
@@ -685,6 +687,11 @@ air_generate_metadata_from_api <- function(base,
                         field_opts = fields_df$field_opts,
                         primary_key = as.character(x$primaryFieldId == fields_df$id)
     )
+
+    if(!field_names_to_snake_case){
+      names(md_df) <- c("Field Name","Table Name", "Field Desc","Field Type",
+                        "Field ID", "Table ID", "Field Opts", "Primary Key")
+    }
 
 
   })
