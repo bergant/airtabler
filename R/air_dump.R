@@ -544,7 +544,7 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 #' describes how tables and fields fit together.
 #' @param add_id_field Logical. If true, an "id" field is added to each table
 #' @param field_names_to_snakecase Logical. If true, values in the field_names
-#' column are converted to snake_case
+#' column and the field in the metadata table themselves are are converted to snake_case
 #'
 #' @return data.frame with metadata table
 #' @export air_get_metadata_from_table
@@ -552,8 +552,12 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snakecase = TRUE){
   # get structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name)
+
+  # get original table names
+  str_md_names <- names(str_metadata)
+
   ## check for table_name, field_name
-  names(str_metadata) <- snakecase::to_snake_case(names(str_metadata))
+  names(str_metadata) <- snakecase::to_snake_case(str_md_names)
 
   required_fields <- c("table_name","field_name")
   if(!all(required_fields %in% names(str_metadata))){
@@ -579,6 +583,10 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 
     str_metadata <- rbind(str_metadata,tables)
 
+  }
+
+  if(!field_names_to_snakecase){
+    names(str_metadata) <- str_md_names
   }
 
   return(str_metadata)
