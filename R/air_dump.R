@@ -367,16 +367,18 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
 
   # drop records no longer in meta data
-  message("deleting records do longer in the base")
+  message("Checking for records no longer in the base")
 
   records_to_delete <- dplyr::anti_join(min_update_df,meta_data,by = join_field)
 
 
   if(nrow(records_to_delete) >0){
+    message("Deleting records no longer in the base")
   records_deleted <- purrr::map(records_to_delete$id, function(id){
     air_delete(base, table_name,id)
   })
   } else {
+    message("No Records deleted")
     records_deleted <- "No records deleted"
   }
 
