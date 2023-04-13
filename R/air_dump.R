@@ -693,7 +693,7 @@ air_generate_metadata_from_api <- function(base,
                         "Field ID", "Table ID", "Field Opts", "Primary Key")
     }
 
-
+  return(md_df)
   })
 
   return(metadata_df)
