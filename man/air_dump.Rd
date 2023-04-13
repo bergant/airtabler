@@ -11,6 +11,7 @@ air_dump(
   add_missing_fields = TRUE,
   download_attachments = TRUE,
   attachment_fields = NULL,
+  polite_downloads = TRUE,
   field_names_to_snakecase = TRUE,
   ...
 )
@@ -32,6 +33,9 @@ Can be left as NULL if base already contains a table called description.}
 What field(s) should files be downloaded from? Default is to download all fields
 with type multipleAttachments in metadata.}
 
+\item{polite_downloads}{Logical. Use if downloading many files. Sets a delay
+so that server is not overwhelmed by requests.}
+
 \item{field_names_to_snakecase}{Logical. Should field names be
 converted to snake case?}
 
@@ -45,6 +49,7 @@ description and metadata tables.
 Dump all tables from a base into R
 }
 \note{
-To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
+To facilitate joining on ids, see purrr::as_vector for converting list
+ type columns to vectors and
 tidyr::unnest for expanding list columns.
 }

@@ -876,15 +876,24 @@ air_generate_base_description <- function(title = NA,
 #' with type multipleAttachments in metadata.
 #' @param field_names_to_snakecase Logical. Should field names be
 #'  converted to snake case?
+#' @param polite_downloads Logical. Use if downloading many files. Sets a delay
+#' so that server is not overwhelmed by requests.
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.
 #' @export air_dump
 #'
-#' @note To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
+#' @note To facilitate joining on ids, see purrr::as_vector for converting list
+#'  type columns to vectors and
 #' tidyr::unnest for expanding list columns.
 #'
-air_dump <- function(base, metadata= NULL, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL, field_names_to_snakecase = TRUE,...){
+air_dump <- function(base, metadata= NULL, description = NULL,
+                     add_missing_fields = TRUE,
+                     download_attachments = TRUE,
+                     attachment_fields=NULL,
+                     polite_downloads = TRUE,
+                     field_names_to_snakecase = TRUE,
+                     ...){
 
   # if metadata is null, check schema for metadata data table,
   if(is.null(metadata)){
@@ -893,7 +902,7 @@ air_dump <- function(base, metadata= NULL, description = NULL, add_missing_field
     #get schema
     base_schema <- air_get_schema(base)
     # look for meta data table
-    table_names <- schema$tables$name
+    table_names <- base_schema$tables$name
 
     metadata_check <- grepl("meta data",table_names,ignore.case = TRUE)
 
@@ -1006,7 +1015,12 @@ air_dump <- function(base, metadata= NULL, description = NULL, add_missing_field
         }
 
         ## build up attachment fields on x_table
+        sleep_time <- 0
+        if(polite_downloads){
+            sleep_time <- 0.01
+        }
         for(af in attachment_fields){
+          Sys.sleep(sleep_time)
           x_table <- air_download_attachments(x_table,field = af,...)
         }
       }
