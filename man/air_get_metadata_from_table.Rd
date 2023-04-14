@@ -7,7 +7,7 @@
 air_get_metadata_from_table(
   base,
   table_name,
-  add_id_field = TRUE,
+  add_id_field = FALSE,
   field_names_to_snakecase = TRUE
 )
 }
@@ -20,7 +20,7 @@ describes how tables and fields fit together.}
 \item{add_id_field}{Logical. If true, an "id" field is added to each table}
 
 \item{field_names_to_snakecase}{Logical. If true, values in the field_names
-column are converted to snake_case}
+column and the field in the metadata table themselves are are converted to snake_case}
 }
 \value{
 data.frame with metadata table

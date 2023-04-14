@@ -311,6 +311,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
   #create any new fields from meta_data
 
+  message("creating log")
   update_log <- list(
     fields_created = NA,
     records_updated = NA,
@@ -318,6 +319,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
     records_deleted = NA
   )
 
+  message("checking if any fields need to be added")
   col_check <- !names(meta_data) %in% names(current_metadata_table)
 
   if(all(col_check)){
@@ -327,6 +329,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   }
 
   if(any(col_check)){
+    message("creating missing fields")
     cols_to_create <- names(meta_data)[col_check]
 
     fields_created  <- air_create_field(base = base,
@@ -341,7 +344,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
   # compare with updated values
   ## use field ids
-
+  message("checking which fields need to be updated")
   ## assumes a certain structure for metadata
 
   min_update_df <- current_metadata_table[,c(join_field,record_id_field)]
@@ -349,13 +352,13 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   records_to_update <- dplyr::inner_join(meta_data,min_update_df,by = join_field )
 
   # update records
-
+  message("updating records")
   records_updated <- air_update_data_frame(base, table_name, records_to_update$id,records_to_update)
 
   update_log$records_updated <- records_updated
 
   # insert new records
-
+  message("added new records")
   records_to_insert <- dplyr::anti_join(meta_data,min_update_df,by = join_field)
 
   records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
@@ -364,15 +367,18 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
 
   # drop records no longer in meta data
+  message("Checking for records no longer in the base")
 
   records_to_delete <- dplyr::anti_join(min_update_df,meta_data,by = join_field)
 
 
   if(nrow(records_to_delete) >0){
+    message("Deleting records no longer in the base")
   records_deleted <- purrr::map(records_to_delete$id, function(id){
     air_delete(base, table_name,id)
   })
   } else {
+    message("No Records deleted")
     records_deleted <- "No records deleted"
   }
 
@@ -544,16 +550,20 @@ air_update_description_table <- function(base,description, table_name = "Descrip
 #' describes how tables and fields fit together.
 #' @param add_id_field Logical. If true, an "id" field is added to each table
 #' @param field_names_to_snakecase Logical. If true, values in the field_names
-#' column are converted to snake_case
+#' column and the field in the metadata table themselves are are converted to snake_case
 #'
 #' @return data.frame with metadata table
 #' @export air_get_metadata_from_table
 #'
-air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, field_names_to_snakecase = TRUE){
+air_get_metadata_from_table <- function(base, table_name, add_id_field = FALSE, field_names_to_snakecase = TRUE){
   # get structural metadata table
   str_metadata <- airtabler::fetch_all(base,table_name)
+
+  # get original table names
+  str_md_names <- names(str_metadata)
+
   ## check for table_name, field_name
-  names(str_metadata) <- snakecase::to_snake_case(names(str_metadata))
+  names(str_metadata) <- snakecase::to_snake_case(str_md_names)
 
   required_fields <- c("table_name","field_name")
   if(!all(required_fields %in% names(str_metadata))){
@@ -579,6 +589,10 @@ air_get_metadata_from_table <- function(base, table_name, add_id_field = TRUE, f
 
     str_metadata <- rbind(str_metadata,tables)
 
+  }
+
+  if(!field_names_to_snakecase){
+    names(str_metadata) <- str_md_names
   }
 
   return(str_metadata)
@@ -862,15 +876,24 @@ air_generate_base_description <- function(title = NA,
 #' with type multipleAttachments in metadata.
 #' @param field_names_to_snakecase Logical. Should field names be
 #'  converted to snake case?
+#' @param polite_downloads Logical. Use if downloading many files. Sets a delay
+#' so that server is not overwhelmed by requests.
 #'
 #' @return List of data.frames. All tables from metadata plus the
 #' description and metadata tables.
 #' @export air_dump
 #'
-#' @note To facilitate joining on ids, see purrr::as_vector for converting list type columns to vectors and
+#' @note To facilitate joining on ids, see purrr::as_vector for converting list
+#'  type columns to vectors and
 #' tidyr::unnest for expanding list columns.
 #'
-air_dump <- function(base, metadata= NULL, description = NULL, add_missing_fields = TRUE, download_attachments = TRUE, attachment_fields=NULL, field_names_to_snakecase = TRUE,...){
+air_dump <- function(base, metadata= NULL, description = NULL,
+                     add_missing_fields = TRUE,
+                     download_attachments = TRUE,
+                     attachment_fields=NULL,
+                     polite_downloads = TRUE,
+                     field_names_to_snakecase = TRUE,
+                     ...){
 
   # if metadata is null, check schema for metadata data table,
   if(is.null(metadata)){
@@ -879,7 +902,7 @@ air_dump <- function(base, metadata= NULL, description = NULL, add_missing_field
     #get schema
     base_schema <- air_get_schema(base)
     # look for meta data table
-    table_names <- schema$tables$name
+    table_names <- base_schema$tables$name
 
     metadata_check <- grepl("meta data",table_names,ignore.case = TRUE)
 
@@ -992,7 +1015,12 @@ air_dump <- function(base, metadata= NULL, description = NULL, add_missing_field
         }
 
         ## build up attachment fields on x_table
+        sleep_time <- 0
+        if(polite_downloads){
+            sleep_time <- 0.01
+        }
         for(af in attachment_fields){
+          Sys.sleep(sleep_time)
           x_table <- air_download_attachments(x_table,field = af,...)
         }
       }
@@ -1129,10 +1157,11 @@ flatten_col_to_chr <- function(data_frame){
 #' @param table_list List. List of data.frames output from \code{air_dump}
 #' @param output_dir String. Folder containing output files
 #' @param overwrite Logical. Should outputs be overwritten if they already exist?
+#' @param attachments_dir String. What folder are base attachments stored in?
 #'
 #' @return Vector of file paths
 #' @export
-air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE){
+air_dump_to_csv <- function(table_list,output_dir= "outputs",attachments_dir=NULL, overwrite = FALSE){
 
   # create a unique id for the data
   output_id <- rlang::hash(table_list)
@@ -1177,6 +1206,11 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 
   file.copy(from = outputs_list,to = output_dir_path_final,recursive = FALSE ,copy.mode = TRUE)
 
+  ## copy attachments into folder
+  if(!is.null(attachments_dir)){
+    message("copying attachments")
+    file.copy(from = attachments_dir, to = output_dir_path_final,recursive = TRUE ,copy.mode = TRUE )
+  }
   return(list.files(output_dir_path_final,full.names = TRUE))
 
 }
