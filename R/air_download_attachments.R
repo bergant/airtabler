@@ -95,8 +95,13 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
         return(dest)
       }
 
-       a <- utils::download.file(url = x$url,destfile = dest)
-       print(a)
+      # wrap in a map so that it works on linux systems where urls must explicitly
+      # be a length one character vector
+      purrr::map2(x$url, dest, function(url_item, dest_item){
+        a <- utils::download.file(url = url_item,destfile = dest_item)
+        print(a)
+      })
+
 
       return(dest)
     })
