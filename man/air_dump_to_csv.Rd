@@ -4,12 +4,19 @@
 \alias{air_dump_to_csv}
 \title{Save air_dump output to csv}
 \usage{
-air_dump_to_csv(table_list, output_dir = "outputs", overwrite = FALSE)
+air_dump_to_csv(
+  table_list,
+  output_dir = "outputs",
+  attachments_dir = NULL,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{table_list}{List. List of data.frames output from \code{air_dump}}
 
 \item{output_dir}{String. Folder containing output files}
+
+\item{attachments_dir}{String. What folder are base attachments stored in?}
 
 \item{overwrite}{Logical. Should outputs be overwritten if they already exist?}
 }

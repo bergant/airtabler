@@ -1157,10 +1157,11 @@ flatten_col_to_chr <- function(data_frame){
 #' @param table_list List. List of data.frames output from \code{air_dump}
 #' @param output_dir String. Folder containing output files
 #' @param overwrite Logical. Should outputs be overwritten if they already exist?
+#' @param attachments_dir String. What folder are base attachments stored in?
 #'
 #' @return Vector of file paths
 #' @export
-air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE){
+air_dump_to_csv <- function(table_list,output_dir= "outputs",attachments_dir=NULL, overwrite = FALSE){
 
   # create a unique id for the data
   output_id <- rlang::hash(table_list)
@@ -1205,6 +1206,11 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs", overwrite = FALSE)
 
   file.copy(from = outputs_list,to = output_dir_path_final,recursive = FALSE ,copy.mode = TRUE)
 
+  ## copy attachments into folder
+  if(!is.null(attachments_dir)){
+    message("copying attachments")
+    file.copy(from = attachments_dir, to = output_dir_path_final,recursive = TRUE ,copy.mode = TRUE )
+  }
   return(list.files(output_dir_path_final,full.names = TRUE))
 
 }
