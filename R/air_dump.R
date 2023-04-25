@@ -292,9 +292,11 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   schema <- air_get_schema(base)
 
   # check for Meta Data table
+  check_for_md_table <-  schema$tables$name %in% table_name
   ## if no meta data table, stop
 
-  if(!table_name %in% schema$tables$name){
+
+  if(!all(check_for_md_table)){
     msg <- glue::glue("No table called {table_name} in base {base}.
                       Please use air_create_metadata_table to create the metadata table
                       or create it manually.")
@@ -319,20 +321,12 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
     records_deleted = NA
   )
 
-  # if the current metadata table is empty, then insert records
-  if(is.character(current_metadata_table)){
-    message("added new records")
-    records_to_insert <- meta_data
-
-    records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
-
-    update_log$records_inserted <- records_inserted
-
-    return(update_log)
-  }
 
   message("checking if any fields need to be added")
-  col_check <- !names(meta_data) %in% names(current_metadata_table)
+
+  # use schema in case table is empty
+  current_col_names <- schema$tables$fields[md_check][[1]]$name
+  col_check <- !names(meta_data) %in% current_col_names
 
   if(all(col_check)){
     msg <- glue::glue("The meta_data object and the metadata table in your base, {table_name}, share
@@ -352,6 +346,18 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
     update_log$fields_created  <- fields_created
 
+  }
+
+  # if the current metadata table is empty, then insert records
+  if(is.character(current_metadata_table)){
+    message("added new records")
+    records_to_insert <- meta_data
+
+    records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
+
+    update_log$records_inserted <- records_inserted
+
+    return(update_log)
   }
 
   # compare with updated values
