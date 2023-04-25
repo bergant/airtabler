@@ -325,7 +325,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   message("checking if any fields need to be added")
 
   # use schema in case table is empty
-  current_col_names <- schema$tables$fields[md_check][[1]]$name
+  current_col_names <- schema$tables$fields[check_for_md_table][[1]]$name
   col_check <- !names(meta_data) %in% current_col_names
 
   if(all(col_check)){
