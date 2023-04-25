@@ -296,7 +296,7 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
   ## if no meta data table, stop
 
 
-  if(!all(check_for_md_table)){
+  if(!any(check_for_md_table)){
     msg <- glue::glue("No table called {table_name} in base {base}.
                       Please use air_create_metadata_table to create the metadata table
                       or create it manually.")
