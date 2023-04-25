@@ -319,6 +319,18 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
     records_deleted = NA
   )
 
+  # if the current metadata table is empty, then insert records
+  if(is.character(current_metadata_table)){
+    message("added new records")
+    records_to_insert <- dplyr::anti_join(meta_data,min_update_df,by = join_field)
+
+    records_inserted <- air_insert_data_frame(base, table_name,records_to_insert)
+
+    update_log$records_inserted <- records_inserted
+
+    return(update_log)
+  }
+
   message("checking if any fields need to be added")
   col_check <- !names(meta_data) %in% names(current_metadata_table)
 
