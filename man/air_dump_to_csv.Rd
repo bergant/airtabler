@@ -8,7 +8,8 @@ air_dump_to_csv(
   table_list,
   output_dir = "outputs",
   attachments_dir = NULL,
-  overwrite = FALSE
+  overwrite = FALSE,
+  output_id = NULL
 )
 }
 \arguments{
@@ -19,6 +20,9 @@ air_dump_to_csv(
 \item{attachments_dir}{String. What folder are base attachments stored in?}
 
 \item{overwrite}{Logical. Should outputs be overwritten if they already exist?}
+
+\item{output_id}{String. Optional identifier for the data set - if NULL an
+ID will be generated using a hash of the data.}
 }
 \value{
 Vector of file paths
