@@ -9,7 +9,8 @@ air_dump_to_csv(
   output_dir = "outputs",
   attachments_dir = NULL,
   overwrite = FALSE,
-  output_id = NULL
+  output_id = NULL,
+  names_to_snake_case = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ air_dump_to_csv(
 
 \item{output_id}{String. Optional identifier for the data set - if NULL an
 ID will be generated using a hash of the data.}
+
+\item{names_to_snake_case}{Logical. Should field and table names be converted to snake_case?}
 }
 \value{
 Vector of file paths
