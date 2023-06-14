@@ -392,9 +392,9 @@ air_update_metadata_table <- function(base,meta_data,table_name = "Meta Data", j
 
   if(nrow(records_to_delete) >0){
     message("Deleting records no longer in the base")
-  records_deleted <- purrr::map(records_to_delete$id, function(id){
-    air_delete(base, table_name,id)
-  })
+    records_deleted <- purrr::map(records_to_delete$id, function(id){
+      air_delete(base, table_name,id)
+    })
   } else {
     message("No Records deleted")
     records_deleted <- "No records deleted"
@@ -497,7 +497,7 @@ air_update_description_table <- function(base,description, table_name = "Descrip
   # convert to tibble for more consistent behavior in joins
   current_metadata_table<- tibble::as_tibble(current_metadata_table)
   current_metadata_table <- current_metadata_table |>
-                              dplyr::select(-createdTime)
+    dplyr::select(-createdTime)
 
   # compare with updated values
   ## use field ids
@@ -725,7 +725,7 @@ air_generate_metadata_from_api <- function(base,
                         "Field ID", "Table ID", "Field Opts", "Primary Key")
     }
 
-  return(md_df)
+    return(md_df)
   })
 
   return(metadata_df)
@@ -795,7 +795,7 @@ air_get_base_description_from_table<- function(base, table_name,field_names_to_s
   desc_table <- airtabler::fetch_all(base,table_name)
   # to snake case
   if(field_names_to_snakecase){
-  names(desc_table) <- snakecase::to_snake_case(names(desc_table))
+    names(desc_table) <- snakecase::to_snake_case(names(desc_table))
   }
 
   required_fields <- c("title","primary_contact","email","description")
@@ -865,15 +865,15 @@ air_generate_base_description <- function(title = NA,
                                           identifier =NA,
                                           license = NA,...){
   desc_table <- tibble::tibble(title = title,
-                           creator= creator,
-                           created=created,
-                           primary_contact=primary_contact,
-                           email = email,
-                           description = description,
-                           contributor = contributor,
-                           identifier =identifier,
-                           license = license,
-                           ...)
+                               creator= creator,
+                               created=created,
+                               primary_contact=primary_contact,
+                               email = email,
+                               description = description,
+                               contributor = contributor,
+                               identifier =identifier,
+                               license = license,
+                               ...)
   return(desc_table)
 }
 
@@ -1035,7 +1035,7 @@ air_dump <- function(base, metadata= NULL, description = NULL,
         ## build up attachment fields on x_table
         sleep_time <- 0
         if(polite_downloads){
-            sleep_time <- 0.01
+          sleep_time <- 0.01
         }
         for(af in attachment_fields){
           Sys.sleep(sleep_time)
@@ -1075,9 +1075,9 @@ air_dump <- function(base, metadata= NULL, description = NULL,
     }
   }
 
-#   named_description_post <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
-#
-#   table_list[named_description_post][[1]]$created <- Sys.Date()
+  #   named_description_post <- grepl(pattern = "description",x = names(table_list), ignore.case = TRUE)
+  #
+  #   table_list[named_description_post][[1]]$created <- Sys.Date()
 
   return(table_list)
 }
@@ -1178,10 +1178,15 @@ flatten_col_to_chr <- function(data_frame){
 #' @param attachments_dir String. What folder are base attachments stored in?
 #' @param output_id String. Optional identifier for the data set - if NULL an
 #' ID will be generated using a hash of the data.
+#' @param names_to_snake_case Logical. Should field and table names be converted to snake_case?
 #'
 #' @return Vector of file paths
 #' @export
-air_dump_to_csv <- function(table_list,output_dir= "outputs",attachments_dir=NULL, overwrite = FALSE, output_id = NULL){
+air_dump_to_csv <- function(table_list,output_dir= "outputs",
+                            attachments_dir=NULL,
+                            overwrite = FALSE,
+                            output_id = NULL,
+                            names_to_snake_case = TRUE){
 
   # create a unique id for the data
   if(is.null(output_id)){
@@ -1206,14 +1211,29 @@ air_dump_to_csv <- function(table_list,output_dir= "outputs",attachments_dir=NUL
   dir.create(output_dir_path,recursive = TRUE)
 
   purrr::walk2(table_list, names(table_list), function(x_table,y_table_name){
-    ##  clean table name
-    y_table_name <- snakecase::to_snake_case(y_table_name)
-    ## clean up field names in table
-    names(x_table)  <- snakecase::to_snake_case(names(x_table))
 
-    ## clean up field names
-    names(x_table)  <- snakecase::to_snake_case(names(x_table))
+    if(names_to_snake_case){
+      ##  clean table name
+      y_table_name_snake <- snakecase::to_snake_case(y_table_name)
+      ## clean up field names in table
+      x_names_snake  <- snakecase::to_snake_case(names(x_table))
 
+      ## check that we didn't create duplicate field names
+      dup_check <- duplicated(names(x_table))
+
+      if(any(dup_check)){
+       err_msg <- glue::glue("The following field names in table {y_table_name} are duplicated after converting to snake_case:
+                             \n
+                             {names(x_table)[dup_check]}\n
+                             Fix field names in airtable or set `names_to_snake_case` to FALSE")
+       rlang::abort(err_msg)
+      }
+
+      y_table_name <- y_table_name_snake
+
+      names(x_table) <- x_names_snake
+
+    }
     x_table_flat <- flatten_col_to_chr(x_table)
 
     ## export to CSV
