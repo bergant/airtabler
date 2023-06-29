@@ -10,6 +10,8 @@
 #' @param dir_name String. Where should files be downloaded to?
 #' Will create the folder if it does not exist. Folders created are recursively.
 #' @param ... reserved for additional arguments.
+#' @param include_attachment_id Logical. Should you include the airtable attachment
+#' ID to guarantee all file names are unique? Default is true.
 #'
 #' @return Returns x with an additional field called attachment_file_paths
 #' @export air_download_attachments
@@ -30,7 +32,7 @@
 #'
 #' }
 #'
-air_download_attachments <- function(x, field, dir_name = "downloads",...){
+air_download_attachments <- function(x, field, dir_name = "downloads",include_attachment_id = TRUE,...){
   #browser()
 
   if(!is.data.frame(x)){
@@ -80,7 +82,16 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
       # with different contents - e.g. original file generation was
       # structured like sample_1234/fasta.file sample_1235/fasta.file
 
-      dest <- sprintf("%s/%s_%s", dir_name,x$id,x$filename)
+      filename_dest <- x$filename
+
+      if(include_attachment_id){
+        filename_dest <- sprintf("%s_%s", x$id,filename_dest)
+      } else {
+        message("include_attachement_id = FALSE. If file names are repeated,
+        only the first file with that name will be downloaded.")
+      }
+
+      dest <- sprintf("%s/%s", dir_name,filename_dest)
 
       # sometimes the same file is attached multiple times
       # if the file is already downloaded, don't add it again
@@ -89,8 +100,7 @@ air_download_attachments <- function(x, field, dir_name = "downloads",...){
 
 
       if(all(file.exists(dest))){
-
-        not_downloaded_message <- glue::glue("\nFile already exists, not downloaded\n{dest}\n")
+        not_downloaded_message <- glue::glue("\nFile already exists, not downloaded\n{dest}\n.")
         print(not_downloaded_message)
         return(dest)
       }

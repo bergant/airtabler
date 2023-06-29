@@ -4,7 +4,13 @@
 \alias{air_download_attachments}
 \title{Download Airtable file attachments}
 \usage{
-air_download_attachments(x, field, dir_name = "downloads", ...)
+air_download_attachments(
+  x,
+  field,
+  dir_name = "downloads",
+  include_attachment_id = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{Data frame. Output from air_get or fetch_all.}
@@ -13,6 +19,9 @@ air_download_attachments(x, field, dir_name = "downloads", ...)
 
 \item{dir_name}{String. Where should files be downloaded to?
 Will create the folder if it does not exist. Folders created are recursively.}
+
+\item{include_attachment_id}{Logical. Should you include the airtable attachment
+ID to guarantee all file names are unique? Default is true.}
 
 \item{...}{reserved for additional arguments.}
 }
