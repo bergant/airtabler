@@ -14,6 +14,8 @@
 #' @param extract_field String. Name of extract field that will be created
 #' @param ... Additional arguments to pass to \code{air_get}
 #' @param download_file Logical. Should files be downloaded?
+#' @param include_attachment_id Logical. Should the attachment ID be included in the file name?
+#' Default is true to ensure unique file names.
 #' @param dir_name String. Where should files be downloaded to?
 #' Will create the folder if it does not exist.
 #' @param skip Numeric. How many lines should be skipped? See \code{readxl::read_excel} skip.
@@ -34,7 +36,7 @@
 #' }
 #'
 #'
-air_get_attachments <- function(base, table_name, field, download_file = FALSE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, parse_all_sheets = FALSE, ...){
+air_get_attachments <- function(base, table_name, field, download_file = FALSE,include_attachment_id = TRUE, dir_name = "downloads", extract_type ="excel", extract_field ="excel_extract", skip = 0, parse_all_sheets = FALSE, ...){
 
   # get data
   x <- fetch_all(base,table_name,...)
@@ -47,7 +49,7 @@ air_get_attachments <- function(base, table_name, field, download_file = FALSE, 
   ### get files ----
 
   if(download_file){
-    x <- air_download_attachments(x,field = field,dir_name = dir_name)
+    x <- air_download_attachments(x,field = field,dir_name = dir_name,include_attachment_id )
   }
 
   ### extract excel ----
