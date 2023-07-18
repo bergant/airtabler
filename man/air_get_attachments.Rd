@@ -9,6 +9,7 @@ air_get_attachments(
   table_name,
   field,
   download_file = FALSE,
+  include_attachment_id = TRUE,
   dir_name = "downloads",
   extract_type = "excel",
   extract_field = "excel_extract",
@@ -25,6 +26,9 @@ air_get_attachments(
 \item{field}{String. Name of field with file attachments in base}
 
 \item{download_file}{Logical. Should files be downloaded?}
+
+\item{include_attachment_id}{Logical. Should the attachment ID be included in the file name?
+Default is true to ensure unique file names.}
 
 \item{dir_name}{String. Where should files be downloaded to?
 Will create the folder if it does not exist.}
