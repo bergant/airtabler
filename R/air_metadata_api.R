@@ -451,6 +451,132 @@ air_create_field <- function(base,
 
 }
 
+
+#' Update a field name and/or description
+#'
+#' Must update either the name or the description.
+#' See "https://airtable.com/developers/web/api/update-field" for more details.
+#'
+#' @param base String. Base id
+#' @param table_id String. ID for table that contains the field to be updated
+#' @param field_id String. ID of field to be updated
+#' @param name String. updated name (optional)
+#' @param description String. updated description (option)
+#'
+#' @return List. Describes the changes that happened to the field
+#' @export air_update_field
+#'
+#' @examples
+#' \dontrun{
+#' base <- "appVjIfAo8AJlfTkx"
+#'
+#' schema <- air_get_schema("appVjIfAo8AJlfTkx")
+#'
+#' table_id <- schema$tables[1,c("id")]
+#'
+#' field_id <- schema$tables$fields[[1]][2,]$id
+#'
+#' ## update name and description
+#'
+#' name <- "New Name"
+#'
+#' description <- "Updated Description"
+#'
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name, description = description)
+#'
+#' ### just name
+#'
+#' name <- "New New Name"
+#'
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name)
+#'
+#'
+#' ## just description
+#'
+#' description <- "Better description"
+#'
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,description = description)
+#'
+#' ## set name to number
+#'
+#' name <- 1234
+#'
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name)
+#'
+#'
+#' # set description to number
+#'
+#' description <- 1234
+#'
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,description = description)
+#'
+#' # bulk update names and descriptions from a data frame
+#'
+#' field_ids <- schema$tables$fields[[1]]$id
+#'
+#' field_names <- sprintf("%s_bulk_update",schema$tables$fields[[1]]$name)
+#'
+#' field_descriptions <- sprintf("%s BULK UPDATE",schema$tables$fields[[1]]$description)
+#'
+#' df <- data.frame("field_id"= field_ids,"name"=field_names,"description"=field_descriptions)
+#'
+#' purrr::pmap(df,function(field_id,name,description){
+#'   air_update_field(base = base,table_id = table_id,field_id = field_id,name = name, description = description)
+#' })
+#' }
+air_update_field<- function(base, table_id, field_id, name = NULL, description = NULL){
+
+  if(rlang::is_empty(name) & rlang::is_empty(description)){
+    rlang::abort("Must provide either a name or description")
+  }
+
+  ## create the field list
+  field_list<- list()
+
+  # add name property
+  if(!rlang::is_empty(name)){
+    assertthat::assert_that(is.character(name),length(name) ==1)
+    field_list$name <- name
+  }
+
+  # add description property
+  if(!rlang::is_empty(description)){
+    assertthat::assert_that(is.character(description),length(description) ==1)
+    field_list$description <- description
+  }
+
+  assertthat::assert_that(length(field_list) > 0)
+
+  # create
+  "https://api.airtable.com/v0/meta/bases/{baseId}/tables/{tableId}/fields/{columnId}"
+
+  request_url <- sprintf("%s/%s/tables/%s/fields/%s", air_meta_url, base,table_id,field_id)
+  request_url <- utils::URLencode(request_url)
+
+
+  ## fields must be updated one at a time
+    fields_json <- jsonlite::toJSON(field_list,pretty = TRUE,auto_unbox = TRUE)
+
+    # call service:
+    res <- httr::PATCH(
+      request_url,
+      httr::content_type("application/json"),
+      httr::add_headers(
+        Authorization = paste("Bearer", air_api_key())
+      ),
+      body = fields_json
+    )
+
+    air_validate(res)
+    # may need a new air_parse function
+
+    res_content <- httr::content(res,as = "text")
+
+    schema <- jsonlite::fromJSON(res_content)
+
+    return(schema)
+}
+
 #' Get list of bases for an Token
 #'
 #' Each token you provisision is given access to a certain set of bases or
@@ -489,5 +615,6 @@ air_list_bases <- function(request_url = "https://api.airtable.com/v0/meta/bases
 
   return(base_list)
 }
+
 
 
