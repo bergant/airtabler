@@ -34,8 +34,8 @@ call. Note that this is represented by a record ID, not a numerical offset.}
 
 \item{view}{(optional) The name or ID of the view}
 
-\item{fields}{(optional) Only data for fields whose names are in this list
-will be included in the records. If you don't need every field, you can use}
+\item{fields}{List. (optional) Only data for fields whose names are in this list
+will be included in the records. Does not work when retrieving individual records with \code{record_id}}
 
 \item{sortField}{(optional) The field name to use for sorting}
 
