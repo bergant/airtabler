@@ -82,8 +82,8 @@ air_secret_key <- function(){
 #'   records will be returned. Defaults to asc.
 #' @param combined_result If TRUE (default) all data is returned in the same data.
 #'  If FALSE table fields are returned in separate \code{fields} element.
-#' @param fields (optional) Only data for fields whose names are in this list
-#'   will be included in the records. If you don't need every field, you can use
+#' @param fields List. (optional) Only data for fields whose names are in this list
+#'   will be included in the records. Does not work when retrieving individual records with \code{record_id}
 #' @param filterByFormula String. Use a formula to filter results. See \href{airtable docs}{https://support.airtable.com/hc/en-us/articles/223247187-How-to-sort-filter-or-retrieve-ordered-records-in-the-API}
 #'   this parameter to reduce the amount of data transferred.
 #' @return A data frame with records or a list with record details if
