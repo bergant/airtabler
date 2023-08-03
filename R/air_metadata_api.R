@@ -482,33 +482,38 @@ air_create_field <- function(base,
 #'
 #' description <- "Updated Description"
 #'
-#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name, description = description)
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,
+#' name = name, description = description)
 #'
 #' ### just name
 #'
 #' name <- "New New Name"
 #'
-#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name)
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,
+#' name = name)
 #'
 #'
 #' ## just description
 #'
 #' description <- "Better description"
 #'
-#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,description = description)
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,
+#' description = description)
 #'
 #' ## set name to number
 #'
 #' name <- 1234
 #'
-#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,name = name)
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,
+#' name = name)
 #'
 #'
 #' # set description to number
 #'
 #' description <- 1234
 #'
-#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,description = description)
+#' out <- air_update_field(base = base,table_id = table_id,field_id = field_id,
+#' description = description)
 #'
 #' # bulk update names and descriptions from a data frame
 #'
@@ -516,12 +521,15 @@ air_create_field <- function(base,
 #'
 #' field_names <- sprintf("%s_bulk_update",schema$tables$fields[[1]]$name)
 #'
-#' field_descriptions <- sprintf("%s BULK UPDATE",schema$tables$fields[[1]]$description)
+#' field_descriptions <- sprintf("%s BULK UPDATE",
+#' schema$tables$fields[[1]]$description)
 #'
-#' df <- data.frame("field_id"= field_ids,"name"=field_names,"description"=field_descriptions)
+#' df <- data.frame("field_id"= field_ids,"name"=field_names,
+#' "description"=field_descriptions)
 #'
 #' purrr::pmap(df,function(field_id,name,description){
-#'   air_update_field(base = base,table_id = table_id,field_id = field_id,name = name, description = description)
+#'   air_update_field(base = base,table_id = table_id,field_id = field_id,
+#'   name = name, description = description)
 #' })
 #' }
 air_update_field<- function(base, table_id, field_id, name = NULL, description = NULL){

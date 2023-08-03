@@ -17,12 +17,16 @@
 #'
 #' \code{AIRTABLE_API_KEY=your_api_key_here}
 #'
-#' You can use \code{usethis::edit_r_environ()} to edit your find and edit your
+#' You can use \code{usethis::edit_r_environ()} to open and edit your .Renviron
 #' file.
+#'
+#' Also consider using the `dotenv` package with a .env file for storing
+#' sensitive variables. Remember add to.gitignore or encrypt the .env file to
+#' avoid sharing sensitive variables.
 #'
 #' @param base String. ID for the base or app to be fetched
 #' @param table_name String. Name of the table to be fetched from the base
-#' @param ... Additional arguments to pass to \code{air_get}. \code{view} is a
+#' @param ... Additional arguments to pass to [air_get()]. \code{view} is a
 #' commonly used additional argument.
 #'
 #' @return dataframe
