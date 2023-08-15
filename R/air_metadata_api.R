@@ -342,7 +342,7 @@ air_table_template <- function(table_name, description, fields_df ){
 #'
 #' table_list <- air_table_template(table_name = "Planet",
 #'                                  description = "Planets of Foundation",
-#'                                  fields_df = field_tables)
+#'                                  fields_df = field_df)
 #'
 #' air_create_table(base, table_list)
 #'
