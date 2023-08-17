@@ -43,7 +43,7 @@ air_get_id_from_url <- function(url, pattern, id_type, split_pattern = "/|\\?" )
 
 
 #' @describeIn air_get_id_from_url Get the base id
-#' @export
+#' @export air_get_base_id_from_url
 #'
 air_get_base_id_from_url <- function(url,pattern = "^app\\w{13}"){
 
@@ -53,7 +53,7 @@ air_get_base_id_from_url <- function(url,pattern = "^app\\w{13}"){
 }
 
 #' @describeIn air_get_id_from_url Get the table id
-#' @export
+#' @export air_get_table_id_from_url
 #'
 air_get_table_id_from_url<- function(url, pattern = "^tbl\\w{13}"){
   id <- air_get_id_from_url(url = url,  pattern = pattern,id_type = "table_id")
@@ -69,7 +69,7 @@ air_get_view_id_from_url<- function(url,  pattern = "^viw\\w{13}"){
 }
 
 #' @describeIn air_get_id_from_url Get the record id
-#' @export
+#' @export air_get_record_id_from_url
 #'
 air_get_record_id_from_url<- function(url,  pattern = "^rec\\w{13}"){
   id <- air_get_id_from_url(url = url,  pattern = pattern,id_type = "record_id")

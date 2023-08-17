@@ -127,8 +127,10 @@ air_get <- function(base, table_name,
   passing the parameters within the body of the
   request instead of the query parameters."
 
-
-  #print(request_url)
+  if(nchar(request_url) > 1600 | length(fields) > 21){
+    print("using air_post")
+    air_post(base,table_name,limit,offset,view,fields,sortField,sortDirection,filterByFormula,combined_result)
+  } else {
   # call service:
   res <- httr::GET(
     url = request_url,
@@ -145,6 +147,7 @@ air_get <- function(base, table_name,
       )
   }
   ret
+  }
 }
 
 list_params <- function(x, par_name) {
