@@ -63,7 +63,7 @@ field_df<- air_fields_df_template(name = field_names,
 
 table_list <- air_table_template(table_name = "Planet",
                                  description = "Planets of Foundation",
-                                 fields_df = field_tables)
+                                 fields_df = field_df)
 
 air_create_table(base, table_list)
 
