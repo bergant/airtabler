@@ -119,7 +119,18 @@ air_get <- function(base, table_name,
   request_url <- httr::modify_url(request_url, query = param_list)
   request_url <- gsub(pattern = "fields=",replacement = "fields%5B%5D=",x = request_url)
 
-  #print(request_url)
+  "Note Airtable's API only accepts request with a URL shorter
+  than 16,000 characters. Encoded formulas may cause your
+  requests to exceed this limit. To fix this issue you can
+  instead make a POST request to
+  /v0/{baseId}/{tableIdOrName}/listRecords while
+  passing the parameters within the body of the
+  request instead of the query parameters."
+
+  if(nchar(request_url) > 1600 | length(fields) > 21){
+    print("using air_post")
+    air_post(base,table_name,limit,offset,view,fields,sortField,sortDirection,filterByFormula,combined_result)
+  } else {
   # call service:
   res <- httr::GET(
     url = request_url,
@@ -136,6 +147,7 @@ air_get <- function(base, table_name,
       )
   }
   ret
+  }
 }
 
 list_params <- function(x, par_name) {
