@@ -48,11 +48,14 @@ If FALSE table fields are returned in separate \code{fields} element.}
 A data frame with records
 }
 \description{
-Retrieve records where the request url would be over 16k characters (e.g. listing
-many fields)
+Retrieve records where the request url would be over 16k characters (e.g.
+complicated formula) or has more than 21 fields listed in the request.
 }
 \details{
 You can retrieve records in an order of a view by providing the name or ID of
 the view in the view query parameter. The results will include only records
 visible in the order they are displayed.
+}
+\seealso{
+[air_get()]
 }

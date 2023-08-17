@@ -1,11 +1,13 @@
 #' Get a list of records
 #'
-#' Retrieve records where the request url would be over 16k characters (e.g. listing
-#' many fields)
+#' Retrieve records where the request url would be over 16k characters (e.g.
+#' complicated formula) or has more than 21 fields listed in the request.
 #'
-#'You can retrieve records in an order of a view by providing the name or ID of
+#' You can retrieve records in an order of a view by providing the name or ID of
 #' the view in the view query parameter. The results will include only records
 #' visible in the order they are displayed.
+#'
+#' @seealso [air_get()]
 #'
 #' @param base String. Airtable base
 #' @param table_name String. Table name
