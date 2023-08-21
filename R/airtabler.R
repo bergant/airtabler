@@ -90,15 +90,15 @@ air_secret_key <- function(){
 #'   \code{record_id} is specified.
 #' @export
 air_get <- function(base, table_name,
-                   record_id = NULL,
-                   limit = NULL,
-                   offset = NULL,
-                   view = NULL,
-                   fields = NULL,
-                   sortField = NULL,
-                   sortDirection = NULL,
-                   filterByFormula = NULL,
-                   combined_result = TRUE) {
+                    record_id = NULL,
+                    limit = NULL,
+                    offset = NULL,
+                    view = NULL,
+                    fields = NULL,
+                    sortField = NULL,
+                    sortDirection = NULL,
+                    filterByFormula = NULL,
+                    combined_result = TRUE) {
 
   search_path <- table_name
 
@@ -129,24 +129,25 @@ air_get <- function(base, table_name,
 
   if(nchar(request_url) > 1600 | length(fields) > 21){
     # print("using air_post")
-    air_post(base,table_name,limit,offset,view,fields,sortField,sortDirection,filterByFormula,combined_result)
+    ret <- air_post(base,table_name,limit,offset,view,fields,sortField,sortDirection,filterByFormula,combined_result)
+    return(ret)
   } else {
-  # call service:
-  res <- httr::GET(
-    url = request_url,
-    config = httr::add_headers(Authorization = paste("Bearer", air_api_key()))
-  )
-  air_validate(res)      # throws exception (stop) if error
-  ret <- air_parse(res)  # returns R object
-  if(combined_result && is.null(record_id)) {
-    # combine ID, Fields and CreatedTime in the same data frame:
-    ret <-
-      cbind(
-        id = ret$id, ret$fields, createdTime = ret$createdTime,
-        stringsAsFactors =FALSE
-      )
-  }
-  ret
+    # call service:
+    res <- httr::GET(
+      url = request_url,
+      config = httr::add_headers(Authorization = paste("Bearer", air_api_key()))
+    )
+    air_validate(res)      # throws exception (stop) if error
+    ret <- air_parse(res)  # returns R object
+    if(combined_result && is.null(record_id)) {
+      # combine ID, Fields and CreatedTime in the same data frame:
+      ret <-
+        cbind(
+          id = ret$id, ret$fields, createdTime = ret$createdTime,
+          stringsAsFactors =FALSE
+        )
+    }
+    return(ret)
   }
 }
 
@@ -220,15 +221,15 @@ list_params <- function(x, par_name) {
 #'   \code{record_id} is specified.
 #' @export
 air_select <- function(
-  base, table_name, record_id = NULL,
-  fields = NULL,
-  filterByFormula = NULL,
-  maxRecord = NULL,
-  sort = NULL,
-  view = NULL,
-  pageSize = NULL,
-  offset = NULL,
-  combined_result = TRUE) {
+    base, table_name, record_id = NULL,
+    fields = NULL,
+    filterByFormula = NULL,
+    maxRecord = NULL,
+    sort = NULL,
+    view = NULL,
+    pageSize = NULL,
+    offset = NULL,
+    combined_result = TRUE) {
 
   search_path <- table_name
   if(!missing(record_id)) {
@@ -449,10 +450,10 @@ air_make_request <- function(base, table_name, json_record_data, record_id = NUL
     # browser()
 
     res <- httr::PATCH(url = request_url,
-                      httr::add_headers(
-                        Authorization = paste("Bearer",air_api_key()),
-                        'Content-type' = "application/json"),
-                      body = json_record_data)
+                       httr::add_headers(
+                         Authorization = paste("Bearer",air_api_key()),
+                         'Content-type' = "application/json"),
+                       body = json_record_data)
   }
 
   if(method == "DELETE"){
@@ -644,15 +645,15 @@ air_table_funs <- function(base, table_name) {
   res_list <- list()
   res_list[["select"]] <-
     function(
-      record_id = NULL,
-      fields = NULL,
-      filterByFormula = NULL,
-      maxRecord = NULL,
-      sort = NULL,
-      view = NULL,
-      pageSize = NULL,
-      offset = NULL,
-      combined_result = TRUE
+    record_id = NULL,
+    fields = NULL,
+    filterByFormula = NULL,
+    maxRecord = NULL,
+    sort = NULL,
+    view = NULL,
+    pageSize = NULL,
+    offset = NULL,
+    combined_result = TRUE
     ){
       air_select(base, table_name, record_id,
                  fields, filterByFormula, maxRecord, sort, view,
@@ -685,11 +686,11 @@ air_table_funs <- function(base, table_name) {
 
   res_list[["get"]] <-
     function(
-      record_id = NULL,
-      limit = NULL, offset = NULL,
-      view = NULL,
-      sortField = NULL, sortDirection = NULL,
-      combined_result = TRUE
+    record_id = NULL,
+    limit = NULL, offset = NULL,
+    view = NULL,
+    sortField = NULL, sortDirection = NULL,
+    combined_result = TRUE
     ){
       air_get(base, table_name, record_id, limit, offset, view, sortField, sortDirection, combined_result)
     }

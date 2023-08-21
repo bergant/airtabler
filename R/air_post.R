@@ -49,11 +49,15 @@ air_post <- function(base,
     "limit", "offset", "view", "sortField", "sortDirection","filterByFormula")]
   param_list <- param_list[!sapply(param_list, is.null)]
   if(!is.null(fields)) {
-    param_list <- c(param_list, list_params(x = fields, par_name = "fields"))
+    ## allows us to use in fetch_all without having to specify a method and have
+    # properly formatted json
+    fields_unlisted <- unlist(fields)
+    param_list <- c(param_list, list_params(x = list(fields_unlisted), par_name = "fields"))
   }
 
-  #request_url <- httr::modify_url(request_url, query = param_list)
-  #request_url <- gsub(pattern = "fields=",replacement = "fields%5B%5D=",x = request_url)
+  # needed to properly format param name in json
+  names(param_list) <- gsub(pattern = "\\[\\d\\]",replacement = "", names(param_list) )
+
 
   "Note Airtable's API only accepts request with a URL shorter
   than 16,000 characters. Encoded formulas may cause your
@@ -66,12 +70,14 @@ air_post <- function(base,
   res <- httr::POST(
     url = request_url,
     config = httr::add_headers(Authorization = paste("Bearer", air_api_key())),
-    body = jsonlite::toJSON(param_list),
-    encode="json"
+    body = jsonlite::toJSON(param_list,auto_unbox = TRUE),
+    encode="raw",
+    httr::content_type_json()
   )
 
   air_validate(res)      # throws exception (stop) if error
   ret <- air_parse(res)  # returns R object
+  ret_offset <- get_offset(ret)
   if(combined_result) {
     # combine ID, Fields and CreatedTime in the same data frame:
     ret <-
@@ -79,6 +85,10 @@ air_post <- function(base,
         id = ret$id, ret$fields, createdTime = ret$createdTime,
         stringsAsFactors =FALSE
       )
+
+    if(!is.null(ret_offset)) {
+      attr(ret, "offset") <- ret_offset
+    }
   }
 
   return(ret)
