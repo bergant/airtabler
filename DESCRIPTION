@@ -1,17 +1,37 @@
 Package: airtabler
 Type: Package
 Title: Interface to the Airtable API
-Version: 0.1.6
-Date: 2017-09-17
+Version: 0.2.16
+Date: 2023-08-17
 Author: Darko Bergant
-Maintainer: Darko Bergant <darko.bergant@gmail.com>
-Description: Provides access to the Airtable (airtable.com) API.
+Maintainer: Collin Schwantes <schwantes@ecohealthalliance.org>
+Description: Fork from Darko Bergant's package. Provides access to the Airtable (airtable.com) API.
 Depends:
     R (>= 3.2.0)
 License: MIT + file LICENSE
-URL: https://github.com/bergant/airtabler
+URL: https://github.com/ecohealthalliance/airtabler
 LazyData: TRUE
+Encoding: UTF-8
 Imports:
+    glue,
+    dplyr,
     httr,
-    jsonlite
-RoxygenNote: 6.0.1
+    jsonlite,
+    readxl,
+    curl,
+    purrr,
+    utils,
+    snakecase,
+    tidyselect,
+    rlang,
+    stringr,
+    tibble,
+    deposits,
+    assertthat
+Remotes: 
+    ropenscilabs/deposits
+RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

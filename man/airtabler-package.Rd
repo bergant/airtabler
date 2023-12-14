@@ -16,17 +16,24 @@ Provides access to the Airtable API (\url{http://airtable.com/api}).
 
 \section{API key}{
 
-  Generate the airtable API key from your Airtable account page
-  (http://airtable.com/account).
+  Generate the Airtable API token from your Airtable account page
+  (http://airtable.com/create/tokens).
 
   \pkg{airtabler} functions will read the API key from
   environment variable \code{AIRTABLE_API_KEY}. To start R session with the
-  initialized environvent variable create an \code{.Renviron} file in your R home
+  initialized environment variable create an \code{.Renviron} file in your R home
   with a line like this:
 
   \code{AIRTABLE_API_KEY=************}
 
   To check where your R home is, try \code{normalizePath("~")}.
+
+  The \pkg{usethis} and \pkg{dotenv} packages are useful for setting environment
+  variables.
+   \code{usethis::edit_r_environ} allow you to modify the \code{.Renviron} file.
+   \code{dotenv::load_dot_env} allows you to load environment variables from a
+   \code{.env} file. This second approach is especially helpful if you work
+   with multiple tokens.
 }
 
 \section{Usage}{

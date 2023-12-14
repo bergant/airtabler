@@ -2,20 +2,27 @@
 % Please edit documentation in R/airtabler.R
 \name{air_insert}
 \alias{air_insert}
+\alias{air_insert_data_frame}
 \alias{multiple}
 \title{Insert a new record}
 \usage{
 air_insert(base, table_name, record_data)
 
+air_insert_data_frame(base, table_name, records, typecast)
+
 multiple(x)
 }
 \arguments{
-\item{base}{Airtable base}
+\item{base}{String. Airtable base}
 
-\item{table_name}{Table name}
+\item{table_name}{String. Table name}
 
 \item{record_data}{Named list of values. You can include all, some, or none
 of the field values}
+
+\item{records}{Dataframe. Contains records you would like to insert}
+
+\item{typecast}{Logical. Should airtable make new values for select type fields?}
 
 \item{x}{Object to be marked as a multiple value field}
 }
